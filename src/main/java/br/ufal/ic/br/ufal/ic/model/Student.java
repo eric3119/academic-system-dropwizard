@@ -1,6 +1,10 @@
 package br.ufal.ic.br.ufal.ic.model;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Student {
-    private String name;
-    private String code;
+    @NonNull private String name;
+    @NonNull private String code;
 }
