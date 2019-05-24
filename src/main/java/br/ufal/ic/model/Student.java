@@ -1,4 +1,4 @@
-package br.ufal.ic.br.ufal.ic.model;
+package br.ufal.ic.model;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

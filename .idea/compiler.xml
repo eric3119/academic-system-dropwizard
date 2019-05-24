@@ -10,5 +10,8 @@
         <module name="academic_system" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="academic_system" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
