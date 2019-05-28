@@ -11,4 +11,5 @@ public class Student {
     private Secretary secretary;
     private boolean graduating;
     private Integer credits;
+    private Enrolment enrolment;
 }
