@@ -11,4 +11,5 @@ class Subject {
     private Department department;
     private Secretary secretary;
     private boolean graduation;
+    private Professor professor;
 }
