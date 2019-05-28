@@ -1,4 +1,7 @@
 package br.ufal.ic.model;
 
-public class Department {
+class Department {
+    private String name;
+    private Secretary grad_secr;
+    private Secretary pos_grad_secr;
 }
