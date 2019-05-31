@@ -1,10 +1,10 @@
 package br.ufal.ic;
 
+import br.ufal.ic.health.TemplateHealthCheck;
+import br.ufal.ic.resources.AcademicSystemResources;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-// import com.example.helloworld.resources.HelloWorldResource;
-// import com.example.helloworld.health.TemplateHealthCheck;
 
 public class AcademicSystemApplication extends Application<AcademicSystemConfiguration> {
 
@@ -22,8 +22,16 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
         //super.initialize(bootstrap);
     }
 
+    @Override
     public void run(AcademicSystemConfiguration configuration,
                     Environment environment){// throws Exception {
-        //
+        final AcademicSystemResources resource = new AcademicSystemResources(
+                configuration.getTemplate(),
+                configuration.getDefaultName()
+        );
+        final TemplateHealthCheck templateHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
+
+        environment.healthChecks().register("template", templateHealthCheck);
+        environment.jersey().register(resource);
     }
 }
