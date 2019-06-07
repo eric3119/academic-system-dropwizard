@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ public class AcademicSystemResources {
     private final AtomicLong counter;
 
     private StudentDAO studentDAO;
+
+
 
     public AcademicSystemResources(String template, String defaultName) {
         this.template = template;
@@ -43,4 +46,13 @@ public class AcademicSystemResources {
     public Student findStudent(@PathParam("id") LongParam id) {
         return studentDAO.findById(id.get());
     }
+
+    @POST
+    @Path("/create/")
+    public Response create(@QueryParam("name") String name, @QueryParam("code") String code) {
+        Student d = new Student(name, code);
+        studentDAO.create(d);
+        return Response.ok(d).build();
+    }
+
 }
