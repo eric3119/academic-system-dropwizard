@@ -28,7 +28,7 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
 
     @Override
     public void run(AcademicSystemConfiguration configuration,
-                    Environment environment){// throws Exception {
+                    Environment environment) throws Exception {
         final AcademicSystemResources resource = new AcademicSystemResources(
                 configuration.getTemplate(),
                 configuration.getDefaultName()

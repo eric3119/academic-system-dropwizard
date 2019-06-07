@@ -24,6 +24,11 @@ public class AcademicSystemConfiguration extends Configuration {
         return database;
     }
 
+    @JsonProperty("database")
+    public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
+        this.database = dataSourceFactory;
+    }
+
     @JsonProperty
     public String getTemplate() {
         return template;
