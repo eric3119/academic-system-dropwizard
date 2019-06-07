@@ -1,8 +1,11 @@
 package br.ufal.ic;
 
 import br.ufal.ic.health.TemplateHealthCheck;
+import br.ufal.ic.model.Student;
 import br.ufal.ic.resources.AcademicSystemResources;
 import io.dropwizard.Application;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -20,6 +23,7 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
     @Override
     public void initialize(Bootstrap<AcademicSystemConfiguration> bootstrap) {
         //super.initialize(bootstrap);
+        bootstrap.addBundle(hibernateBundle);
     }
 
     @Override
@@ -34,4 +38,10 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
         environment.healthChecks().register("template", templateHealthCheck);
         environment.jersey().register(resource);
     }
+
+    private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(Student.class) {
+        public DataSourceFactory getDataSourceFactory(AcademicSystemConfiguration academicSystemConfiguration) {
+            return academicSystemConfiguration.getDataSourceFactory();
+        }
+    };
 }
