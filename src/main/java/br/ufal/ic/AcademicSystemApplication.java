@@ -35,9 +35,9 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
 //        );
 //        final TemplateHealthCheck templateHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
 
-        final StudentDAO db = new StudentDAO(hibernateBundle.getSessionFactory());
+        final StudentDAO studentDAO = new StudentDAO(hibernateBundle.getSessionFactory());
 
-        environment.jersey().register(new StudentResource(db));
+        environment.jersey().register(new StudentResource(studentDAO));
 //        environment.jersey().register(resource);
 //        environment.healthChecks().register("template", templateHealthCheck);
 //        environment.jersey().register(resource);

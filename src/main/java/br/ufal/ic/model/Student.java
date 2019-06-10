@@ -27,7 +27,7 @@ public class Student {
     @OneToMany
     private List<SubjectEnrollment> subjectEnrollments;
     @OneToMany
-    private CourseEnrollment courseEnrollment;
+    private List<CourseEnrollment> courseEnrollments;
 
     public Long getId() {
         return id;
