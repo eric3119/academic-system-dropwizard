@@ -1,14 +1,15 @@
 package br.ufal.ic.model;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.List;
 
 @RequiredArgsConstructor
+@Getter
+@Entity
 public class Student {
 
     @Id
@@ -20,11 +21,13 @@ public class Student {
 
     @ManyToOne
     private Department department;
-
+    @OneToOne
     private Secretary secretary;
-    private boolean graduating;
     private Integer credits;
-    private Enrolment enrolment;
+    @OneToMany
+    private List<SubjectEnrollment> subjectEnrollments;
+    @OneToMany
+    private CourseEnrollment courseEnrollment;
 
     public Long getId() {
         return id;

@@ -1,9 +1,11 @@
 package br.ufal.ic.model;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+@Entity
 class Department {
 
     @Id
@@ -11,6 +13,5 @@ class Department {
     private Long id;
 
     private String name;
-    private Secretary grad_secr;
-    private Secretary pos_grad_secr;
+    private Secretary secretary;
 }

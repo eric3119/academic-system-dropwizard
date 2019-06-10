@@ -1,8 +1,14 @@
 package br.ufal.ic.model;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 
+@Entity
 class Subject {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
     private String name;
     private String code;
     private Integer credits;

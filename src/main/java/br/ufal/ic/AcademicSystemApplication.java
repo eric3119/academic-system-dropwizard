@@ -1,16 +1,13 @@
 package br.ufal.ic;
 
 import br.ufal.ic.DAO.StudentDAO;
-import br.ufal.ic.health.TemplateHealthCheck;
 import br.ufal.ic.model.Student;
-import br.ufal.ic.resources.AcademicSystemResources;
+import br.ufal.ic.resources.StudentResource;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-
-import java.util.List;
 
 public class AcademicSystemApplication extends Application<AcademicSystemConfiguration> {
 
@@ -32,18 +29,18 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
     @Override
     public void run(AcademicSystemConfiguration configuration,
                     Environment environment) throws Exception {
-        final AcademicSystemResources resource = new AcademicSystemResources(
-                configuration.getTemplate(),
-                configuration.getDefaultName()
-        );
-        final TemplateHealthCheck templateHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
+//        final AcademicSystemResources resource = new AcademicSystemResources(
+////                configuration.getTemplate(),
+////                configuration.getDefaultName()
+//        );
+//        final TemplateHealthCheck templateHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
 
-//        final Database db = new Database(hibernateBundle.getSessionFactory());
+        final StudentDAO db = new StudentDAO(hibernateBundle.getSessionFactory());
 
-        environment.jersey().register(resource);
-
-        environment.healthChecks().register("template", templateHealthCheck);
-        environment.jersey().register(resource);
+        environment.jersey().register(new StudentResource(db));
+//        environment.jersey().register(resource);
+//        environment.healthChecks().register("template", templateHealthCheck);
+//        environment.jersey().register(resource);
     }
 
     private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(Student.class) {
