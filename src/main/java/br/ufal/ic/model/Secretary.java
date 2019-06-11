@@ -10,5 +10,6 @@ public class Secretary {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private SecretaryType secretaryType;
 }
