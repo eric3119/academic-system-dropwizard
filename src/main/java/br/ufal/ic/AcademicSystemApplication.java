@@ -1,8 +1,10 @@
 package br.ufal.ic;
 
 import br.ufal.ic.DAO.StudentDAO;
+import br.ufal.ic.DAO.SubjectDAO;
 import br.ufal.ic.model.*;
 import br.ufal.ic.resources.StudentResource;
+import br.ufal.ic.resources.SubjectResource;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -31,8 +33,10 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
                     Environment environment) throws Exception {
 
         final StudentDAO studentDAO = new StudentDAO(hibernateBundle.getSessionFactory());
+        final SubjectDAO subjectDAO = new SubjectDAO(hibernateBundle.getSessionFactory());
 
         environment.jersey().register(new StudentResource(studentDAO));
+        environment.jersey().register(new SubjectResource(subjectDAO));
     }
 
     private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(

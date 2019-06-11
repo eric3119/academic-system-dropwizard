@@ -1,5 +1,6 @@
 package br.ufal.ic.model;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 
 @Entity
 @RequiredArgsConstructor
+@Getter
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
