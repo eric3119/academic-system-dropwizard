@@ -10,5 +10,7 @@ public class CourseEnrollment {
 
     @OneToOne
     private Course course;
+    @ManyToOne
+    private Student student;
     private boolean active;
 }

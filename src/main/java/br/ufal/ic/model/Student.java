@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -25,10 +24,6 @@ public class Student {
     private Secretary secretary;
     @Column
     private Integer credits;
-    @OneToMany
-    private List<SubjectEnrollment> subjectEnrollments;
-    @OneToMany
-    private List<CourseEnrollment> courseEnrollments;
 
     public Long getId() {
         return id;
