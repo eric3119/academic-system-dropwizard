@@ -10,10 +10,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Entity
+@Table(name = "student")
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NonNull private String name;
@@ -23,6 +24,7 @@ public class Student {
     private Department department;
     @OneToOne
     private Secretary secretary;
+    @Column
     private Integer credits;
     @OneToMany
     private List<SubjectEnrollment> subjectEnrollments;
