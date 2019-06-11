@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 
 @Entity
-class Subject {
+public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -1,7 +1,7 @@
 package br.ufal.ic;
 
 import br.ufal.ic.DAO.StudentDAO;
-import br.ufal.ic.model.Student;
+import br.ufal.ic.model.*;
 import br.ufal.ic.resources.StudentResource;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
@@ -43,7 +43,7 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
 //        environment.jersey().register(resource);
     }
 
-    private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(Student.class) {
+    private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(Student.class, Department.class) {
         public DataSourceFactory getDataSourceFactory(AcademicSystemConfiguration academicSystemConfiguration) {
             return academicSystemConfiguration.getDataSourceFactory();
         }
