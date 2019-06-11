@@ -1,9 +1,6 @@
 package br.ufal.ic.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Professor {
@@ -13,4 +10,6 @@ public class Professor {
 
     private String name;
     private String code;
+    @OneToOne
+    private Department department;
 }
