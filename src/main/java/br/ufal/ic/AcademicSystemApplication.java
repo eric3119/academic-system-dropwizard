@@ -40,6 +40,7 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
             Department.class,
             Secretary.class,
             SubjectEnrollment.class,
+            Subject.class,
             CourseEnrollment.class,
             Course.class
     ) {

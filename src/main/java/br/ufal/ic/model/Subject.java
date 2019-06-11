@@ -14,8 +14,8 @@ public class Subject {
     private Integer credits;
     private Integer min_credits; //default 0
     private ArrayList<Subject> requirements;
+    @ManyToOne
     private Department department;
+    @OneToOne
     private Secretary secretary;
-    private boolean graduation;
-    private Professor professor;
 }
