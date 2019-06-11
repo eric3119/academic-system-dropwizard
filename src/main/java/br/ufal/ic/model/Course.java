@@ -1,9 +1,6 @@
 package br.ufal.ic.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Course {
@@ -13,4 +10,6 @@ public class Course {
     private Long id;
 
     private String name;
+    @OneToOne
+    private Secretary secretary;
 }

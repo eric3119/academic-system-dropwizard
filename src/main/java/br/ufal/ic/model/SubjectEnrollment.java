@@ -1,7 +1,6 @@
 package br.ufal.ic.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 
 @Entity
 public class SubjectEnrollment {
@@ -9,5 +8,10 @@ public class SubjectEnrollment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private ArrayList<AcademicOffer> academicOffers;
+//    private ArrayList<AcademicOffer> academicOffers;
+
+    @ManyToOne
+    private Subject subject;
+    @ManyToOne
+    private Student student;
 }

@@ -10,7 +10,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Entity
-@Table(name = "student")
 public class Student {
 
     @Id

@@ -3,6 +3,7 @@ package br.ufal.ic.model;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 public class AcademicOffer {
     @Id
@@ -10,6 +11,8 @@ public class AcademicOffer {
     private Long id;
 
     private String semester;
+    @OneToOne
     private Professor professor;
+    @OneToOne
     private Subject subject;
 }
