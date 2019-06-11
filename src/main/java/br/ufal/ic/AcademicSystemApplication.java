@@ -29,21 +29,20 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
     @Override
     public void run(AcademicSystemConfiguration configuration,
                     Environment environment) throws Exception {
-//        final AcademicSystemResources resource = new AcademicSystemResources(
-////                configuration.getTemplate(),
-////                configuration.getDefaultName()
-//        );
-//        final TemplateHealthCheck templateHealthCheck = new TemplateHealthCheck(configuration.getTemplate());
 
         final StudentDAO studentDAO = new StudentDAO(hibernateBundle.getSessionFactory());
 
         environment.jersey().register(new StudentResource(studentDAO));
-//        environment.jersey().register(resource);
-//        environment.healthChecks().register("template", templateHealthCheck);
-//        environment.jersey().register(resource);
     }
 
-    private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(Student.class, Department.class) {
+    private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(
+            Student.class,
+            Department.class,
+            Secretary.class,
+            SubjectEnrollment.class,
+            CourseEnrollment.class,
+            Course.class
+    ) {
         public DataSourceFactory getDataSourceFactory(AcademicSystemConfiguration academicSystemConfiguration) {
             return academicSystemConfiguration.getDataSourceFactory();
         }
