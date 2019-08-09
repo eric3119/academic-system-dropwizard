@@ -9,12 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class AcademicSystemConfiguration extends Configuration {
-//    @NotEmpty
-//    private String template;
-//
-//    @NotEmpty
-//    private String defaultName = "Stranger";
-
     @Valid
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
@@ -28,14 +22,4 @@ public class AcademicSystemConfiguration extends Configuration {
     public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
         this.database = dataSourceFactory;
     }
-
-//    @JsonProperty
-//    public String getTemplate() {
-//        return template;
-//    }
-//
-//    @JsonProperty
-//    public String getDefaultName() {
-//        return defaultName;
-//    }
 }
