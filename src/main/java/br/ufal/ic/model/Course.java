@@ -1,7 +1,12 @@
 package br.ufal.ic.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import javax.persistence.*;
 
+@RequiredArgsConstructor
+@Getter
 @Entity
 public class Course {
 

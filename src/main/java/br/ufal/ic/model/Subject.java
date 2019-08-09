@@ -18,14 +18,12 @@ public class Subject {
     @NonNull private String name;
     @NonNull private String code;
     @NonNull private Integer credits;
-    @NonNull private Integer min_credits; // TODO default 0
-    //@NonNull
-    private ArrayList<Subject> requirements;
-
-//    @NonNull
+    @NonNull private Integer min_credits;// TODO min credits default 0
+    private ArrayList<Subject> requirements;// TODO requirements default null
+    @NonNull
     @ManyToOne
     private Department department;
-//    @NonNull
+    @NonNull
     @OneToOne
     private Secretary secretary;
 
