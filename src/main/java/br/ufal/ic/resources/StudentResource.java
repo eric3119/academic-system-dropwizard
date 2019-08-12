@@ -19,6 +19,12 @@ public class StudentResource {
     private StudentDAO studentDAO;
 
     @GET
+    @UnitOfWork
+    public Response findAll(){
+        return Response.ok(studentDAO.findAll()).build();
+    }
+
+    @GET
     @Path("/{id}")
     @Timed
     @UnitOfWork

@@ -40,13 +40,15 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
     }
 
     private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(
-            Student.class,
-            Department.class,
-            Secretary.class,
-            SubjectEnrollment.class,
-            Subject.class,
+            AcademicOffer.class,
+            Course.class,
             CourseEnrollment.class,
-            Course.class
+            Department.class,
+            Professor.class,
+            Secretary.class,
+            Student.class,
+            Subject.class,
+            SubjectEnrollment.class
     ) {
         public DataSourceFactory getDataSourceFactory(AcademicSystemConfiguration academicSystemConfiguration) {
             return academicSystemConfiguration.getDataSourceFactory();
