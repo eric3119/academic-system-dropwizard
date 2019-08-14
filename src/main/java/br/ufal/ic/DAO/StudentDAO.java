@@ -19,6 +19,7 @@ public class StudentDAO extends AbstractDAO<Student> {
         return persist(student).getId();
     }
 
+    @SuppressWarnings("unchecked")
     public List<Student> findAll() {
         return list(namedQuery("br.ufal.ic.model.Student.findAll"));
     }

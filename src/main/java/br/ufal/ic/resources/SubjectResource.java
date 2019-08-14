@@ -39,7 +39,7 @@ public class SubjectResource {
                            @FormParam("department") Long department_id,
                            @FormParam("secretary") Long secretary_id
                            ) {
-        Department department  =new Department("teste", new Secretary()); // TODO remove department from subject response
+        Department department  = new Department("teste", new Secretary()); // TODO remove department from subject response
         Subject d = new Subject(
                 name,
                 code,

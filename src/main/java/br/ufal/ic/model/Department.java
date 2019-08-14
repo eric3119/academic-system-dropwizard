@@ -1,8 +1,6 @@
 package br.ufal.ic.model;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -10,6 +8,12 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Table
+@NamedQueries({
+        @NamedQuery(
+                name = "br.ufal.ic.model.Department.findAll",
+                query = "SELECT s FROM Department s"
+        )
+})
 public class Department {
 
     @Id
@@ -18,7 +22,13 @@ public class Department {
 
     @NonNull
     private String name;
-    @NonNull
+
     @OneToOne
-    private Secretary secretary;
+    private Secretary secretary = null;
+
+    public Department(){}
+    public Department(String name, Secretary secretary) {
+        this.name = name;
+        this.secretary = secretary;
+    }
 }
