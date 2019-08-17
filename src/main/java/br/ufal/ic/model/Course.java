@@ -8,6 +8,12 @@ import javax.persistence.*;
 @RequiredArgsConstructor
 @Getter
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = "findAll",
+                query = "SELECT c FROM Course c"
+        )
+})
 public class Course {
 
     @Id
@@ -17,4 +23,8 @@ public class Course {
     private String name;
     @OneToOne
     private Secretary secretary;
+    
+    public long getId(){
+        return id;
+    }
 }

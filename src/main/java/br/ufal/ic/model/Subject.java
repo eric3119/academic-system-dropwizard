@@ -10,6 +10,12 @@ import java.util.ArrayList;
 @Entity
 @RequiredArgsConstructor
 @Getter
+@NamedQueries({
+        @NamedQuery(
+                name = "findAll",
+                query = "SELECT s FROM Subject s"
+        )
+})
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

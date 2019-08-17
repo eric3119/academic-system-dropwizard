@@ -1,8 +1,9 @@
 package br.ufal.ic.resources;
 
-import br.ufal.ic.DAO.SubjectDAO;
+import br.ufal.ic.DAO.GenericDAO;
 import br.ufal.ic.model.Department;
 import br.ufal.ic.model.Secretary;
+import br.ufal.ic.model.SecretaryType;
 import br.ufal.ic.model.Subject;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -12,13 +13,12 @@ import lombok.AllArgsConstructor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/subject")
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class SubjectResource {
-    private SubjectDAO subjectDAO;
+    private GenericDAO<Subject> subjectDAO;
 
     @GET
     @Path("/{id}")
@@ -39,7 +39,7 @@ public class SubjectResource {
                            @FormParam("department") Long department_id,
                            @FormParam("secretary") Long secretary_id
                            ) {
-        Department department  = new Department("teste", new Secretary()); // TODO remove department from subject response
+        Department department  = new Department("teste", new Secretary(SecretaryType.Graduation)); // TODO remove department mock
         Subject d = new Subject(
                 name,
                 code,
@@ -47,7 +47,7 @@ public class SubjectResource {
                 min_credits,
                 //requirements,
                 department,//department_id,
-                new Secretary()//secretary_id
+                new Secretary(SecretaryType.Graduation)//secretary_id
         );
         subjectDAO.create(d);
         return Response.ok(d).build();

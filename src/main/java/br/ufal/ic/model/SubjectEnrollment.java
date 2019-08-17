@@ -1,8 +1,18 @@
 package br.ufal.ic.model;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import javax.persistence.*;
 
+@RequiredArgsConstructor
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = "findAll",
+                query = "SELECT se FROM SubjectEnrollment se"
+        )
+})
 public class SubjectEnrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -10,8 +20,10 @@ public class SubjectEnrollment {
 
 //    private ArrayList<AcademicOffer> academicOffers;
 
+    @NonNull
     @ManyToOne
     private Subject subject;
+    @NonNull
     @ManyToOne
     private Student student;
 }

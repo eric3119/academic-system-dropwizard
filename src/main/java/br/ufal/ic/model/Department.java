@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table
 @NamedQueries({
         @NamedQuery(
-                name = "br.ufal.ic.model.Department.findAll",
+                name = "findAll",
                 query = "SELECT s FROM Department s"
         )
 })

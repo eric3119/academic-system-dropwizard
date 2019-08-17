@@ -1,6 +1,6 @@
 package br.ufal.ic.resources;
 
-import br.ufal.ic.DAO.StudentDAO;
+import br.ufal.ic.DAO.GenericDAO;
 import br.ufal.ic.model.Student;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentResource {
 
-    private StudentDAO studentDAO;
+    private GenericDAO<Student> studentDAO;
 
     @GET
     @UnitOfWork
