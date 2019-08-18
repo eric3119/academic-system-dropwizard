@@ -5,6 +5,8 @@ import br.ufal.ic.model.Student;
 import br.ufal.ic.resources.StudentResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StudentResourceTest{
 
-    private StudentResource resource;
-    private GenericDAO dao;
+    private GenericDAO<Student> dao = mock(GenericDAO.class);
+    private StudentResource resource = new StudentResource(dao);
 
     public ResourceExtension RULE = ResourceExtension.builder()
             .addProvider(new MockBinder())
@@ -44,16 +46,22 @@ public class StudentResourceTest{
         }
     }
 
+    private Student expected;
     @BeforeEach
-    public void setup(){
-        dao = mock(GenericDAO.class);
-        resource = new StudentResource(dao);
+    @SneakyThrows
+    public void setUp() {
+        System.out.println("setUp");
+
+        expected = new Student("eric", "c123456");
+        FieldUtils.writeField(expected, "id", 12L, true);
+
+        when(dao.get(expected.getId())).thenReturn(expected);
     }
 
     @Test
     public void testAdd(){
-        Student expected = new Student("eric", "c123456");
-        Student saved = RULE.target("/exemplos/" + expected.getId()).request().get(Student.class);
+
+        Student saved = RULE.target("/student/" + expected.getId()).request().get(Student.class);
 
         assertNotNull(saved);
         assertEquals(expected.getName(), saved.getName());
