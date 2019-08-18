@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StudentTest {
 
-    private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
+    private static final ObjectMapper objectMapper = Jackson.newObjectMapper();//TODO test model
     private Student student;
 
     @BeforeEach

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/student")
 @AllArgsConstructor
@@ -21,7 +22,14 @@ public class StudentResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(studentDAO.findAll("br.ufal.ic.model.Student.findAll")).build();
+
+        List<Object> objectList = studentDAO.findAll("br.ufal.ic.model.Student.findAll");
+
+        if (objectList == null){
+            throw new WebApplicationException("No records found", Response.Status.NOT_FOUND);
+        }else
+
+        return Response.ok(objectList).build();
     }
 
     @GET
@@ -29,7 +37,13 @@ public class StudentResource {
     @Timed
     @UnitOfWork
     public Student findStudent(@PathParam("id") LongParam id) {
-        return studentDAO.get(Student.class, id.get());
+
+        Student student =  studentDAO.get(Student.class, id.get());
+
+        if (student == null){
+            throw new WebApplicationException("Student not found", Response.Status.NOT_FOUND);
+        }else
+            return student;
     }
 
     @POST

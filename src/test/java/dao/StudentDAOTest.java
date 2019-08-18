@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -43,6 +45,23 @@ public class StudentDAOTest {
         final Student student = daoTestRule.inTransaction(()-> studentDAO.get(Student.class, saved.getId()));
         assertNotNull(student);
         assertEquals(saved.getId(), student.getId());
+    }
+
+    @Test
+    public void testGetAll(){
+        final Student saved1 = daoTestRule.inTransaction(()-> studentDAO.persist(Student.class, new Student("eric1", "c123456")));
+        final Student saved2 = daoTestRule.inTransaction(()-> studentDAO.persist(Student.class, new Student("eric2", "c789123")));
+        final Student saved3 = daoTestRule.inTransaction(()-> studentDAO.persist(Student.class, new Student("eric3", "c123789")));
+        assertNotNull(saved1);
+        assertNotNull(saved2);
+        assertNotNull(saved3);
+
+        final List<Object> studentList = daoTestRule.inTransaction(
+                ()-> studentDAO.findAll("br.ufal.ic.model.Student.findAll")
+        );
+
+        assertEquals(3, studentList.size());
+
     }
 
 }
