@@ -37,7 +37,7 @@ public class StudentResource {
     @UnitOfWork
     public Response create(@FormParam("name") String name, @FormParam("code") String code) {
         Student d = new Student(name, code);
-        studentDAO.create(d);
+        studentDAO.persist(d);
         return Response.ok(d).build();
     }
 }

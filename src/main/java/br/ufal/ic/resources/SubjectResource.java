@@ -49,7 +49,7 @@ public class SubjectResource {
                 department,//department_id,
                 new Secretary(SecretaryType.Graduation)//secretary_id
         );
-        subjectDAO.create(d);
+        subjectDAO.persist(d);
         return Response.ok(d).build();
     }
 }

@@ -28,7 +28,7 @@ public class SecretaryDAOTest {
     public void testAdd(){
 
         Secretary s1 = new Secretary(SecretaryType.Graduation);
-        final Secretary secretary = daoTestRule.inTransaction(()-> dao.create(s1));
+        final Secretary secretary = daoTestRule.inTransaction(()-> dao.persist(s1));
 
         assertNotNull(secretary);
         assertTrue(secretary.getId() > 0);

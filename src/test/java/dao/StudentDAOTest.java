@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StudentDAOTest {
-    private GenericDAO<Student> dao;
+    private GenericDAO<Student> studentDAO;
 
     public DAOTestExtension daoTestRule = DAOTestExtension.newBuilder()
             .addEntityClass(Student.class)
@@ -24,22 +24,23 @@ public class StudentDAOTest {
 
     @BeforeEach
     public void setup(){
-        dao = new GenericDAO<>(daoTestRule.getSessionFactory());
+        studentDAO = new GenericDAO<>(daoTestRule.getSessionFactory());
     }
 
     @Test
     public void testAdd(){
-        final Student student = daoTestRule.inTransaction(()-> dao.create(new Student("eric", "c123456")));
+        final Student student = daoTestRule.inTransaction(()-> studentDAO.persist(new Student("eric", "c123456")));
 
         assertTrue(student.getId() > 0);
     }
 
     @Test
     public void testGet(){
-        final Student saved = daoTestRule.inTransaction(()-> dao.create(new Student("eric", "c123456")));
+
+        final Student saved = daoTestRule.inTransaction(()-> studentDAO.persist(new Student("eric", "c123456")));
         assertNotNull(saved);
 
-        final Student student = daoTestRule.inTransaction(()-> dao.get(saved.getId()));
+        final Student student = daoTestRule.inTransaction(()-> studentDAO.get(saved.getId()));
         assertNotNull(student);
         assertEquals(saved.getId(), student.getId());
     }

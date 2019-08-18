@@ -18,7 +18,8 @@ public class GenericDAO<T> extends AbstractDAO<T> {
         return super.get(id);
     }
 
-    public T create(T t) throws HibernateException{
+    @Override
+    public T persist(T t) throws HibernateException{
         return super.persist(t);
     }
 

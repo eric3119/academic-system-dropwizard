@@ -38,7 +38,7 @@ public class DepartmentResource {
     public Response create(@FormParam("name") String name){//, @FormParam("secretary") Secretary secretary) {
         //TODO create secretary department
         Department d = new Department(name);
-        departmentDAO.create(d);
+        departmentDAO.persist(d);
         return Response.ok(d).build();
     }
 }
