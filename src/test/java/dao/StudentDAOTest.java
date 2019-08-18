@@ -41,8 +41,7 @@ public class StudentDAOTest {
 
         final Student student = daoTestRule.inTransaction(()-> dao.get(saved.getId()));
         assertNotNull(student);
-
-
+        assertEquals(saved.getId(), student.getId());
     }
 
 }
