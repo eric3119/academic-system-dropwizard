@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class ProfessorResource {
-    private GenericDAO<Professor> professorGenericDAO;
+    private GenericDAO professorGenericDAO;
 
     @GET
     @UnitOfWork

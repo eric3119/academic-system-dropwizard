@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class AcademicOfferResource {
 
-    private GenericDAO<AcademicOffer> academicOfferDAO;
+    private GenericDAO academicOfferDAO;
 
     @GET
     @UnitOfWork

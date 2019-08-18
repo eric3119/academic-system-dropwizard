@@ -30,26 +30,17 @@ public class AcademicSystemApplication extends Application<AcademicSystemConfigu
     public void run(AcademicSystemConfiguration configuration,
                     Environment environment) throws Exception {
 
-        final GenericDAO<AcademicOffer> academicOfferDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Course> courseDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<CourseEnrollment> courseEnrollmentDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Department> departmentDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Professor> professorDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Secretary> secretaryDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Student> studentDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<Subject> subjectDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
-        final GenericDAO<SubjectEnrollment> subjectEnrollmentDAO = new GenericDAO<>(hibernateBundle.getSessionFactory());
+        final GenericDAO dao = new GenericDAO(hibernateBundle.getSessionFactory());
 
-
-        environment.jersey().register(new AcademicOfferResource(academicOfferDAO));
-        environment.jersey().register(new CourseResource(courseDAO));
-        environment.jersey().register(new CourseEnrollmentResource(courseEnrollmentDAO));
-        environment.jersey().register(new DepartmentResource(departmentDAO));
-        environment.jersey().register(new ProfessorResource(professorDAO));
-        environment.jersey().register(new SecretaryResource(secretaryDAO));
-        environment.jersey().register(new StudentResource(studentDAO));
-        environment.jersey().register(new SubjectResource(subjectDAO));
-        environment.jersey().register(new SubjectEnrollmentResource(subjectEnrollmentDAO));
+        environment.jersey().register(new AcademicOfferResource(dao));
+        environment.jersey().register(new CourseResource(dao));
+        environment.jersey().register(new CourseEnrollmentResource(dao));
+        environment.jersey().register(new DepartmentResource(dao));
+        environment.jersey().register(new ProfessorResource(dao));
+        environment.jersey().register(new SecretaryResource(dao));
+        environment.jersey().register(new StudentResource(dao));
+        environment.jersey().register(new SubjectResource(dao));
+        environment.jersey().register(new SubjectEnrollmentResource(dao));
     }
 
     private final HibernateBundle<AcademicSystemConfiguration> hibernateBundle = new HibernateBundle<AcademicSystemConfiguration>(

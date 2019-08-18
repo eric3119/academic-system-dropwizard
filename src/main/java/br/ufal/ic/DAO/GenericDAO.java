@@ -7,23 +7,21 @@ import org.hibernate.SessionFactory;
 import java.io.Serializable;
 import java.util.List;
 
-public class GenericDAO<T> extends AbstractDAO<T> {
+public class GenericDAO extends AbstractDAO<Object> {
 
     public GenericDAO(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
 
-    @Override
-    public T get(Serializable id) throws HibernateException {
-        return super.get(id);
+    public <T> T get(Class<T> clazz, Serializable id) throws HibernateException {
+        return currentSession().get(clazz, id);
     }
 
-    @Override
-    public T persist(T t) throws HibernateException{
-        return super.persist(t);
+    public <T> T persist(Class<T> clazz, T entity) throws HibernateException {
+        return (T) super.persist(entity);
     }
 
-    public List<T> findAll(String queryName) throws HibernateException {
+    public List<Object> findAll(String queryName) throws HibernateException {
         return super.list(namedQuery(queryName));
     }
 }

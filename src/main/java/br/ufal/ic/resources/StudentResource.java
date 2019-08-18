@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentResource {
 
-    private GenericDAO<Student> studentDAO;
+    private GenericDAO studentDAO;
 
     @GET
     @UnitOfWork
@@ -29,7 +29,7 @@ public class StudentResource {
     @Timed
     @UnitOfWork
     public Student findStudent(@PathParam("id") LongParam id) {
-        return studentDAO.get(id.get());
+        return studentDAO.get(Student.class, id.get());
     }
 
     @POST
@@ -37,7 +37,7 @@ public class StudentResource {
     @UnitOfWork
     public Response create(@FormParam("name") String name, @FormParam("code") String code) {
         Student d = new Student(name, code);
-        studentDAO.persist(d);
+        studentDAO.persist(Student.class, d);
         return Response.ok(d).build();
     }
 }

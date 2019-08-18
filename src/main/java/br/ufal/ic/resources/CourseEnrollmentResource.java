@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class CourseEnrollmentResource {
-    private GenericDAO<CourseEnrollment> courseEnrollmentGenericDAO;
+    private GenericDAO courseEnrollmentGenericDAO;
 
     @GET
     @UnitOfWork

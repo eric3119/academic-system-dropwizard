@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class SecretaryDAOTest {
-    private GenericDAO<Secretary> dao;
+    private GenericDAO dao;
 
     public DAOTestExtension daoTestRule = DAOTestExtension.newBuilder()
             .addEntityClass(Secretary.class)
@@ -21,14 +21,14 @@ public class SecretaryDAOTest {
 
     @BeforeEach
     public void setup(){
-        dao = new GenericDAO<>(daoTestRule.getSessionFactory());
+        dao = new GenericDAO(daoTestRule.getSessionFactory());
     }
 
     @Test
     public void testAdd(){
 
         Secretary s1 = new Secretary(SecretaryType.Graduation);
-        final Secretary secretary = daoTestRule.inTransaction(()-> dao.persist(s1));
+        final Secretary secretary = daoTestRule.inTransaction(()-> dao.persist(Secretary.class, s1));
 
         assertNotNull(secretary);
         assertTrue(secretary.getId() > 0);

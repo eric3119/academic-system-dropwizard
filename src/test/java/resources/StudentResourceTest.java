@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StudentResourceTest{
 
-    private GenericDAO<Student> dao = mock(GenericDAO.class);
+    private GenericDAO dao = mock(GenericDAO.class);
     private StudentResource resource = new StudentResource(dao);
 
     public ResourceExtension RULE = ResourceExtension.builder()
@@ -54,7 +54,7 @@ public class StudentResourceTest{
         expected = new Student("eric2", "c789123");
         FieldUtils.writeField(expected, "id", 12L, true);
 
-        when(dao.get(expected.getId())).thenReturn(expected);
+        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
     }
     @AfterEach
     public void tearDown(){

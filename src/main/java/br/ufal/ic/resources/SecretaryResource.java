@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class SecretaryResource {
-    private GenericDAO<Secretary> secretaryDAO;
+    private GenericDAO secretaryDAO;
 
     @GET
     @UnitOfWork

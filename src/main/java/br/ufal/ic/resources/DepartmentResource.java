@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class DepartmentResource {
 
-    private GenericDAO<Department> departmentDAO;
+    private GenericDAO departmentDAO;
 
     @GET
     @UnitOfWork
@@ -29,7 +29,7 @@ public class DepartmentResource {
     @Timed
     @UnitOfWork
     public Department findDepartment(@PathParam("id") LongParam id) {
-        return departmentDAO.get(id.get());
+        return departmentDAO.get(Department.class, id.get());
     }
 
     @POST
@@ -38,7 +38,7 @@ public class DepartmentResource {
     public Response create(@FormParam("name") String name){//, @FormParam("secretary") Secretary secretary) {
         //TODO create secretary department
         Department d = new Department(name);
-        departmentDAO.persist(d);
+        departmentDAO.persist(Department.class, d);
         return Response.ok(d).build();
     }
 }

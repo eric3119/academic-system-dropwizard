@@ -18,14 +18,14 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class SubjectResource {
-    private GenericDAO<Subject> subjectDAO;
+    private GenericDAO subjectDAO;
 
     @GET
     @Path("/{id}")
     @Timed
     @UnitOfWork
     public Subject findById(@PathParam("id") LongParam id) {
-        return subjectDAO.get(id.get());
+        return subjectDAO.get(Subject.class, id.get());
     }
 
     @POST
@@ -49,7 +49,7 @@ public class SubjectResource {
                 department,//department_id,
                 new Secretary(SecretaryType.Graduation)//secretary_id
         );
-        subjectDAO.persist(d);
+        subjectDAO.persist(Subject.class, d);
         return Response.ok(d).build();
     }
 }
