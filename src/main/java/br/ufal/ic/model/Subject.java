@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Getter
 @NamedQueries({
         @NamedQuery(
-                name = "findAll",
+                name = "br.ufal.ic.model.Subject.findAll",
                 query = "SELECT s FROM Subject s"
         )
 })

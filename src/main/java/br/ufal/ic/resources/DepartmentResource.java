@@ -21,7 +21,7 @@ public class DepartmentResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(departmentDAO.findAll()).build();
+        return Response.ok(departmentDAO.findAll("br.ufal.ic.model.Department.findAll")).build();
     }
 
     @GET
@@ -29,7 +29,7 @@ public class DepartmentResource {
     @Timed
     @UnitOfWork
     public Department findDepartment(@PathParam("id") LongParam id) {
-        return departmentDAO.findById(id.get());
+        return departmentDAO.get(id.get());
     }
 
     @POST

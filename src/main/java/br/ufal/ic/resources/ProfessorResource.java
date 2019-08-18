@@ -20,6 +20,6 @@ public class ProfessorResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(professorGenericDAO.findAll()).build();
+        return Response.ok(professorGenericDAO.findAll("br.ufal.ic.model.Professor.findAll")).build();
     }
 }

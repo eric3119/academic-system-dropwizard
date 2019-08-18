@@ -15,11 +15,11 @@ import javax.ws.rs.core.Response;
 @AllArgsConstructor
 @Produces(MediaType.APPLICATION_JSON)
 public class SecretaryResource {
-    private GenericDAO<Secretary> secretaryGenericDAO;
+    private GenericDAO<Secretary> secretaryDAO;
 
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(secretaryGenericDAO.findAll()).build();
+        return Response.ok(secretaryDAO.findAll("br.ufal.ic.model.Secretary.findAll")).build();
     }
 }

@@ -1,14 +1,16 @@
 package model;
 
 import br.ufal.ic.model.Student;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dropwizard.jackson.Jackson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StudentTest {
 
+    private static final ObjectMapper objectMapper = Jackson.newObjectMapper();
     private Student student;
 
     @BeforeEach
@@ -17,7 +19,7 @@ public class StudentTest {
     }
 
     @Test
-    void testAdd(){
+    void testCreate(){
         assertNull(student);
 
         String student1 = "teste";
@@ -28,4 +30,15 @@ public class StudentTest {
         assertEquals(student1, student.getName());
         assertEquals(scode1, student.getCode());
     }
+
+//    @Test
+//    public void testSerializeJson() throws Exception {
+//        student = new Student("teste", "c123456");
+//
+//        final String expected = objectMapper.writeValueAsString(
+//                objectMapper.readValue(fixture("fixtures/student.json"), Student.class)
+//        );
+//
+//        assertEquals(expected, objectMapper.writeValueAsString(student));
+//    }
 }

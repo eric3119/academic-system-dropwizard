@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 @NamedQueries({
         @NamedQuery(
-                name = "findAll",
+                name = "br.ufal.ic.model.SubjectEnrollment.findAll",
                 query = "SELECT se FROM SubjectEnrollment se"
         )
 })

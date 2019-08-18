@@ -1,13 +1,12 @@
 package br.ufal.ic.model;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 
 @RequiredArgsConstructor
-@Getter
 @Entity
 @NamedQueries({
     @NamedQuery(
@@ -32,8 +31,16 @@ public class Student {
     private Secretary secretary;
     @Column
     private Integer credits;
-
+    @JsonProperty
     public Long getId() {
         return id;
+    }
+    @JsonProperty
+    public String getName() {
+        return name;
+    }
+    @JsonProperty
+    public String getCode() {
+        return code;
     }
 }

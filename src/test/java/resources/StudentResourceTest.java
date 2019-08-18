@@ -1,3 +1,67 @@
+package resources;
+
+import br.ufal.ic.DAO.GenericDAO;
+import br.ufal.ic.model.Student;
+import br.ufal.ic.resources.StudentResource;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(DropwizardExtensionsSupport.class)
+public class StudentResourceTest{
+
+    private StudentResource resource;
+    private GenericDAO dao;
+
+    public ResourceExtension RULE = ResourceExtension.builder()
+            .addProvider(new MockBinder())
+            .addResource(resource)
+            .build();
+
+    private final HttpServletRequest request = mock(HttpServletRequest.class);
+
+    public class MockBinder extends AbstractBinder {
+
+        @Override
+        protected void configure() {
+
+            Student requestStudent = new Student("eric", "c123456");
+
+            when(request.getAttribute(any())).thenReturn(requestStudent);
+
+            bind(request).to(HttpServletRequest.class);
+        }
+    }
+
+    @BeforeEach
+    public void setup(){
+        dao = mock(GenericDAO.class);
+        resource = new StudentResource(dao);
+    }
+
+    @Test
+    public void testAdd(){
+        Student expected = new Student("eric", "c123456");
+        Student saved = RULE.target("/exemplos/" + expected.getId()).request().get(Student.class);
+
+        assertNotNull(saved);
+        assertEquals(expected.getName(), saved.getName());
+        assertEquals(expected.getId(), saved.getId());
+
+    }
+}
+
 //package resources;
 //
 //import br.ufal.ic.DAO.GenericDAO;

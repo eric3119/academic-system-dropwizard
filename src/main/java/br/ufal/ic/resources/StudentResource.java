@@ -21,7 +21,7 @@ public class StudentResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(studentDAO.findAll()).build();
+        return Response.ok(studentDAO.findAll("br.ufal.ic.model.Student.findAll")).build();
     }
 
     @GET
@@ -29,7 +29,7 @@ public class StudentResource {
     @Timed
     @UnitOfWork
     public Student findStudent(@PathParam("id") LongParam id) {
-        return studentDAO.findById(id.get());
+        return studentDAO.get(id.get());
     }
 
     @POST

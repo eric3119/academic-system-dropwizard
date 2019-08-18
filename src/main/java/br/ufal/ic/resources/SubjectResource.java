@@ -25,7 +25,7 @@ public class SubjectResource {
     @Timed
     @UnitOfWork
     public Subject findById(@PathParam("id") LongParam id) {
-        return subjectDAO.findById(id.get());
+        return subjectDAO.get(id.get());
     }
 
     @POST
