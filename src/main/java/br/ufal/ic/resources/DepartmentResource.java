@@ -22,7 +22,7 @@ public class DepartmentResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(dao.findAll("br.ufal.ic.model.Department.findAll")).build();
+        return Response.ok(dao.findAll(Department.class, "br.ufal.ic.model.Department.findAll")).build();
     }
 
     @GET

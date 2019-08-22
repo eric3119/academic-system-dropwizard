@@ -100,7 +100,7 @@ public class StudentResourceTest{
     }
     @Test
     public void testFindAll(){
-        when(dao.findAll("br.ufal.ic.model.Student.findAll")).thenReturn(
+        when(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).thenReturn(
                 Arrays.asList(
                         new Student("eric123", "c123465", new Department(), new Secretary(SecretaryType.PostGraduation), 0),
                         new Student("eric456", "c465789", new Department(), new Secretary(SecretaryType.PostGraduation), 0)
@@ -113,7 +113,7 @@ public class StudentResourceTest{
     }
     @Test
     public void testFindAllEmpty(){
-        when(dao.findAll("br.ufal.ic.model.Student.findAll")).thenReturn(null);
+        when(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).thenReturn(null);
 
         Response response = RULE.client().target("/student").request().get();
 

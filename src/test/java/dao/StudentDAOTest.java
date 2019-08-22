@@ -62,8 +62,8 @@ public class StudentDAOTest {
         assertNotNull(saved2);
         assertNotNull(saved3);
 
-        final List<Object> studentList = daoTestRule.inTransaction(
-                ()-> dao.findAll("br.ufal.ic.model.Student.findAll")
+        final List<Student> studentList = daoTestRule.inTransaction(
+                ()-> dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")
         );
 
         assertEquals(3, studentList.size());

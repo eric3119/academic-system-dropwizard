@@ -1,16 +1,17 @@
 package br.ufal.ic.resources;
 
 import br.ufal.ic.DAO.GenericDAO;
+import br.ufal.ic.model.Department;
 import br.ufal.ic.model.Student;
+import br.ufal.ic.model.Subject;
+import br.ufal.ic.model.SubjectEnrollment;
 import io.dropwizard.hibernate.UnitOfWork;
 import lombok.AllArgsConstructor;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("enrollsubject")
 @AllArgsConstructor
@@ -20,17 +21,38 @@ public class SubjectEnrollmentResource {
 
     @GET
     @UnitOfWork
-    public Response enrollStudent(@QueryParam("student") Long studentId){
+    public Response enrollStudent(
+            @QueryParam("id_student") Long studentId,
+            @QueryParam("id_subject") Long subjectId
+        ){
 
-        if(studentId != null){
-            System.out.println(studentId);
-            Student student = dao.get(Student.class, studentId);
+        Student student;
+        if(studentId == null) {// return all students
+            return Response.ok(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).build();
+        }else{
+            student = dao.get(Student.class, studentId);
 
-            student.getDepartment();
+            if (student == null){
+                throw new WebApplicationException("Student not found", Response.Status.NOT_FOUND);
+            }
 
-            return Response.ok().build();
-        }else
-            return Response.ok(dao.findAll("br.ufal.ic.model.SubjectEnrollment.findAll")).build();
+            if(subjectId == null) {// return department subjects
+                Department department = student.getDepartment();
+
+                List<Subject> subjectList = dao.findAll(Subject.class, "br.ufal.ic.model.Subject.findAll");
+
+                return Response.ok(subjectList.stream().filter(s -> (s.getDepartment() == department))).build();
+            }else{// enroll student
+                Subject subject = dao.get(Subject.class, subjectId);
+
+                if (subject == null){
+                    throw new WebApplicationException("Subject not found", Response.Status.NOT_FOUND);
+                }
+
+                SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
+                return Response.ok(dao.persist(SubjectEnrollment.class, subjectEnrollment)).build();//TODO test subject enrollment
+            }
+        }
     }
 
 }
