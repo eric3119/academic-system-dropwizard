@@ -2,6 +2,7 @@ package br.ufal.ic.resources;
 
 import br.ufal.ic.DAO.GenericDAO;
 import br.ufal.ic.model.Department;
+import br.ufal.ic.model.Secretary;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
@@ -16,12 +17,12 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class DepartmentResource {
 
-    private GenericDAO departmentDAO;
+    private GenericDAO dao;
 
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(departmentDAO.findAll("br.ufal.ic.model.Department.findAll")).build();
+        return Response.ok(dao.findAll("br.ufal.ic.model.Department.findAll")).build();
     }
 
     @GET
@@ -29,16 +30,23 @@ public class DepartmentResource {
     @Timed
     @UnitOfWork
     public Department findDepartment(@PathParam("id") LongParam id) {
-        return departmentDAO.get(Department.class, id.get());
+        return dao.get(Department.class, id.get());
     }
 
     @POST
     @Path("/create")
     @UnitOfWork
-    public Response create(@FormParam("name") String name){//, @FormParam("secretary") Secretary secretary) {
-        //TODO create secretary department
-        Department d = new Department(name);
-        departmentDAO.persist(Department.class, d);
+    public Response create(
+            @FormParam("name") String name,
+            @FormParam("id_secretary") Long idSecretary
+        ) {
+
+        Secretary s = dao.get(Secretary.class, idSecretary);
+        if (s == null){
+            throw new WebApplicationException("Secretary not found", Response.Status.NOT_FOUND);
+        }
+        Department d = new Department(name, s);
+        dao.persist(Department.class, d);
         return Response.ok(d).build();
     }
 }

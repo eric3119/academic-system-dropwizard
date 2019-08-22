@@ -1,6 +1,9 @@
 package resources;
 
 import br.ufal.ic.DAO.GenericDAO;
+import br.ufal.ic.model.Department;
+import br.ufal.ic.model.Secretary;
+import br.ufal.ic.model.SecretaryType;
 import br.ufal.ic.model.Student;
 import br.ufal.ic.resources.StudentResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -34,14 +37,23 @@ public class StudentResourceTest{
 
 
     private Student expected;
+    private Secretary secretary;
+    private Department department;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
 
-        expected = new Student("eric2", "c789123");
+        expected = new Student("eric2", "c789123", new Department(), new Secretary(SecretaryType.PostGraduation), 0);
         FieldUtils.writeField(expected, "id", 12L, true);
-
         when(dao.get(Student.class, expected.getId())).thenReturn(expected);
+
+        secretary = new Secretary(SecretaryType.PostGraduation);
+        FieldUtils.writeField(secretary, "id", 5L, true);
+        when(dao.get(Secretary.class, secretary.getId())).thenReturn(secretary);
+
+        department = new Department("deptTest",secretary);
+        FieldUtils.writeField(department, "id", 5L, true);
+        when(dao.get(Department.class, department.getId())).thenReturn(department);
     }
     @AfterEach
     public void tearDown(){
@@ -58,7 +70,7 @@ public class StudentResourceTest{
     }
     @Test
     public void testStudentNotFound(){
-        when(dao.get(Student.class,10)).thenReturn(null);
+        when(dao.get(Student.class,10L)).thenReturn(null);
 
         Response response = RULE.client().target("/student/10").request().get();
 
@@ -72,6 +84,16 @@ public class StudentResourceTest{
         Response response = RULE.client().target("/student/create").request().post(Entity.form(form));
 
         assertNotNull(response);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertNotNull(response.getHeaderString("Content-Type"));
+        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
+
+        form.param("id_department", String.valueOf(department.getId()))
+                .param("id_secretary", String.valueOf(secretary.getId()));
+
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+
+        assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getHeaderString("Content-Type"));
         assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
@@ -80,8 +102,8 @@ public class StudentResourceTest{
     public void testFindAll(){
         when(dao.findAll("br.ufal.ic.model.Student.findAll")).thenReturn(
                 Arrays.asList(
-                        new Student("eric123", "c123465"),
-                        new Student("eric456", "c465789")
+                        new Student("eric123", "c123465", new Department(), new Secretary(SecretaryType.PostGraduation), 0),
+                        new Student("eric456", "c465789", new Department(), new Secretary(SecretaryType.PostGraduation), 0)
                 )
         );
 

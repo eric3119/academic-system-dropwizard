@@ -1,5 +1,8 @@
 package model;
 
+import br.ufal.ic.model.Department;
+import br.ufal.ic.model.Secretary;
+import br.ufal.ic.model.SecretaryType;
 import br.ufal.ic.model.Student;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
@@ -25,7 +28,7 @@ public class StudentTest {
         String student1 = "teste";
         String scode1 = "code123";
 
-        student = new Student(student1, scode1);
+        student = new Student(student1, scode1, new Department(), new Secretary(SecretaryType.PostGraduation), 0);
 
         assertEquals(student1, student.getName());
         assertEquals(scode1, student.getCode());

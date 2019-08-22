@@ -16,6 +16,8 @@ import javax.persistence.*;
         )
 })
 public class Secretary {
+
+    public Secretary(){}
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

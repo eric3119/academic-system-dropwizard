@@ -1,6 +1,8 @@
 package br.ufal.ic.resources;
 
 import br.ufal.ic.DAO.GenericDAO;
+import br.ufal.ic.model.Department;
+import br.ufal.ic.model.Secretary;
 import br.ufal.ic.model.Student;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -17,13 +19,13 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentResource {
 
-    private GenericDAO studentDAO;
+    private GenericDAO dao;
 
     @GET
     @UnitOfWork
     public Response findAll(){
 
-        List<Object> objectList = studentDAO.findAll("br.ufal.ic.model.Student.findAll");
+        List<Object> objectList = dao.findAll("br.ufal.ic.model.Student.findAll");
 
         if (objectList == null){
             throw new WebApplicationException("No records found", Response.Status.NOT_FOUND);
@@ -38,7 +40,7 @@ public class StudentResource {
     @UnitOfWork
     public Student findStudent(@PathParam("id") LongParam id) {
 
-        Student student =  studentDAO.get(Student.class, id.get());
+        Student student =  dao.get(Student.class, id.get());
 
         if (student == null){
             throw new WebApplicationException("Student not found", Response.Status.NOT_FOUND);
@@ -49,9 +51,33 @@ public class StudentResource {
     @POST
     @Path("/create")
     @UnitOfWork
-    public Response create(@FormParam("name") String name, @FormParam("code") String code) {
-        Student d = new Student(name, code);
-        studentDAO.persist(Student.class, d);
-        return Response.ok(d).build();
+    public Response create(
+            @FormParam("name") String name,
+            @FormParam("code") String code,
+            @FormParam("id_department") Long idDepartment,
+            @FormParam("id_secretary") Long idSecretary,
+            @FormParam("credits") Integer credits
+            ) {
+
+        Department d = dao.get(Department.class, idDepartment);
+        if (d == null){
+            throw new WebApplicationException("Department not found", Response.Status.NOT_FOUND);
+        }
+        Secretary s = dao.get(Secretary.class, idSecretary);
+        if (s == null){
+            throw new WebApplicationException("Secretary not found", Response.Status.NOT_FOUND);
+        }
+
+        if (name == null){
+            throw new WebApplicationException("Empty name", Response.Status.NOT_FOUND);
+        }
+        if (code == null){
+            throw new WebApplicationException("Empty code", Response.Status.NOT_FOUND);
+        }
+        if (credits == null) credits = 0;
+
+        Student student = new Student(name, code, d, s, credits);
+        dao.persist(Student.class, student);
+        return Response.ok(student).build();
     }
 }

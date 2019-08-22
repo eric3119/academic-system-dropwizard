@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@RequiredArgsConstructor
 @Getter
 @Entity
 @Table

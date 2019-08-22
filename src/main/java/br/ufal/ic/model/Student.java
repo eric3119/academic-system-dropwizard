@@ -1,12 +1,13 @@
 package br.ufal.ic.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 
 @RequiredArgsConstructor
+@Getter
 @Entity
 @NamedQueries({
     @NamedQuery(
@@ -25,22 +26,13 @@ public class Student {
     @NonNull private String name;
     @NonNull private String code;
 
+    @NonNull
     @ManyToOne
     private Department department;
+    @NonNull
     @OneToOne
     private Secretary secretary;
+    @NonNull
     @Column
     private Integer credits;
-    @JsonProperty
-    public Long getId() {
-        return id;
-    }
-    @JsonProperty
-    public String getName() {
-        return name;
-    }
-    @JsonProperty
-    public String getCode() {
-        return code;
-    }
 }
