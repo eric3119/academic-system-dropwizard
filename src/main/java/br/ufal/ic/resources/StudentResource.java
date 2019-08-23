@@ -59,6 +59,21 @@ public class StudentResource {
             @FormParam("credits") Integer credits
             ) {
 
+        if (idDepartment == null){
+            throw new WebApplicationException("Empty department", Response.Status.BAD_REQUEST);
+        }
+        if (idSecretary == null){
+            throw new WebApplicationException("Empty secretary", Response.Status.BAD_REQUEST);
+        }
+
+        if (name == null){
+            throw new WebApplicationException("Empty name", Response.Status.BAD_REQUEST);
+        }
+        if (code == null){
+            throw new WebApplicationException("Empty code", Response.Status.BAD_REQUEST);
+        }
+        if (credits == null) credits = 0;
+
         Department d = dao.get(Department.class, idDepartment);
         if (d == null){
             throw new WebApplicationException("Department not found", Response.Status.NOT_FOUND);
@@ -67,14 +82,6 @@ public class StudentResource {
         if (s == null){
             throw new WebApplicationException("Secretary not found", Response.Status.NOT_FOUND);
         }
-
-        if (name == null){
-            throw new WebApplicationException("Empty name", Response.Status.NOT_FOUND);
-        }
-        if (code == null){
-            throw new WebApplicationException("Empty code", Response.Status.NOT_FOUND);
-        }
-        if (credits == null) credits = 0;
 
         Student student = new Student(name, code, d, s, credits);
         dao.persist(Student.class, student);

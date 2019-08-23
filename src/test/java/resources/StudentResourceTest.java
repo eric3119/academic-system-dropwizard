@@ -80,18 +80,10 @@ public class StudentResourceTest{
     public void testAddStudent(){
         final Form form = new Form()
             .param("name", "eric123")
-            .param("code", "c456123");
+            .param("code", "c456123")
+            .param("id_department", String.valueOf(department.getId()))
+            .param("id_secretary", String.valueOf(secretary.getId()));
         Response response = RULE.client().target("/student/create").request().post(Entity.form(form));
-
-        assertNotNull(response);
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
-
-        form.param("id_department", String.valueOf(department.getId()))
-                .param("id_secretary", String.valueOf(secretary.getId()));
-
-        response = RULE.client().target("/student/create").request().post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -123,5 +115,44 @@ public class StudentResourceTest{
         assertNotNull(response.getHeaderString("Content-Type"));
         assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
 
+    }
+    @Test
+    void testBadRequest(){
+        Form form = new Form();
+        Response response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        form.param("id_department", String.valueOf(department.getId()));
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        form.param("id_secretary", String.valueOf(secretary.getId()));
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        form.param("name", "eric123");
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        form.param("code", "c456123");
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        when(dao.get(Secretary.class, secretary.getId())).thenReturn(null);
+
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
+        when(dao.get(Department.class, department.getId())).thenReturn(null);
+
+        response = RULE.client().target("/student/create").request().post(Entity.form(form));
+        assertNotNull(response);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }
