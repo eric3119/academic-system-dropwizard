@@ -21,6 +21,6 @@ public class AcademicOfferResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(academicOfferDAO.findAll(AcademicOffer.class, "br.ufal.ic.model.AcademicOffer.findAll")).build();
+        return Response.ok(academicOfferDAO.findAll(AcademicOffer.class)).build();
     }
 }

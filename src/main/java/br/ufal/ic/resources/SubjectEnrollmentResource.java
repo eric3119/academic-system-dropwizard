@@ -28,10 +28,9 @@ public class SubjectEnrollmentResource {
 
         Student student;
         if(studentId == null) {// return all students
-            return Response.ok(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).build();
+            return Response.ok(dao.findAll(Student.class)).build();
         }else{
             student = dao.get(Student.class, studentId);
-
             if (student == null){
                 throw new WebApplicationException("Student not found", Response.Status.NOT_FOUND);
             }
@@ -39,7 +38,7 @@ public class SubjectEnrollmentResource {
             if(subjectId == null) {// return department subjects
                 Department department = student.getDepartment();
 
-                List<Subject> subjectList = dao.findAll(Subject.class, "br.ufal.ic.model.Subject.findAll");
+                List<Subject> subjectList = dao.findAll(Subject.class);
 
                 return Response.ok(subjectList.stream().filter(s -> (s.getDepartment() == department))).build();
             }else{// enroll student
@@ -50,7 +49,7 @@ public class SubjectEnrollmentResource {
                 }
 
                 SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
-                return Response.ok(dao.persist(SubjectEnrollment.class, subjectEnrollment)).build();//TODO test subject enrollment
+                return Response.ok(dao.persist(SubjectEnrollment.class, subjectEnrollment)).build();
             }
         }
     }

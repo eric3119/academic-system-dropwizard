@@ -46,7 +46,7 @@ public class SubjectResource {
                 credits,
                 min_credits,
                 //requirements,
-                department,//department_id,
+                department,
                 new Secretary(SecretaryType.Graduation)//secretary_id
         );
         subjectDAO.persist(Subject.class, d);

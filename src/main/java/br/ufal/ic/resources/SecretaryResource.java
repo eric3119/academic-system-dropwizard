@@ -20,6 +20,6 @@ public class SecretaryResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-        return Response.ok(secretaryDAO.findAll(Secretary.class, "br.ufal.ic.model.Secretary.findAll")).build();
+        return Response.ok(secretaryDAO.findAll(Secretary.class)).build();
     }
 }

@@ -43,10 +43,6 @@ public class StudentResourceTest{
     @SneakyThrows
     public void setUp() {
 
-        expected = new Student("eric2", "c789123", new Department(), new Secretary(SecretaryType.PostGraduation), 0);
-        FieldUtils.writeField(expected, "id", 12L, true);
-        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
-
         secretary = new Secretary(SecretaryType.PostGraduation);
         FieldUtils.writeField(secretary, "id", 5L, true);
         when(dao.get(Secretary.class, secretary.getId())).thenReturn(secretary);
@@ -54,6 +50,10 @@ public class StudentResourceTest{
         department = new Department("deptTest",secretary);
         FieldUtils.writeField(department, "id", 5L, true);
         when(dao.get(Department.class, department.getId())).thenReturn(department);
+
+        expected = new Student("eric", "c789123", department, secretary, 0);
+        FieldUtils.writeField(expected, "id", 12L, true);
+        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
     }
     @AfterEach
     public void tearDown(){
@@ -100,7 +100,7 @@ public class StudentResourceTest{
     }
     @Test
     public void testFindAll(){
-        when(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).thenReturn(
+        when(dao.findAll(Student.class)).thenReturn(
                 Arrays.asList(
                         new Student("eric123", "c123465", new Department(), new Secretary(SecretaryType.PostGraduation), 0),
                         new Student("eric456", "c465789", new Department(), new Secretary(SecretaryType.PostGraduation), 0)
@@ -113,15 +113,13 @@ public class StudentResourceTest{
     }
     @Test
     public void testFindAllEmpty(){
-        when(dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll")).thenReturn(null);
+        when(dao.findAll(Student.class)).thenReturn(null);
 
         Response response = RULE.client().target("/student").request().get();
 
         assertNotNull(response);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-
-        System.out.println(response.getHeaders());
         assertNotNull(response.getHeaderString("Content-Type"));
         assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
 

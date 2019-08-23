@@ -25,7 +25,7 @@ public class StudentResource {
     @UnitOfWork
     public Response findAll(){
 
-        List<Student> objectList = dao.findAll(Student.class, "br.ufal.ic.model.Student.findAll");
+        List<Student> objectList = dao.findAll(Student.class);
 
         if (objectList == null){
             throw new WebApplicationException("No records found", Response.Status.NOT_FOUND);

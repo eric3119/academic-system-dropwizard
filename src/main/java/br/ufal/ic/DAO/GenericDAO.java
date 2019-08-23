@@ -21,7 +21,8 @@ public class GenericDAO extends AbstractDAO<Object> {
         return (T) super.persist(entity);
     }
 
-    public <T> List<T> findAll(Class<T> clazz, String queryName) throws HibernateException {
-        return super.list(namedQuery(queryName));
+    public <T> List<T> findAll(Class<T> clazz) throws HibernateException {
+
+        return super.list(namedQuery("br.ufal.ic.model."+clazz.getSimpleName()+".findAll"));
     }
 }

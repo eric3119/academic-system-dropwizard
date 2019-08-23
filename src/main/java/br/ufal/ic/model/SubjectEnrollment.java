@@ -18,7 +18,7 @@ public class SubjectEnrollment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private ArrayList<AcademicOffer> academicOffers;
+//    private ArrayList<AcademicOffer> academicOffers;//TODO subject academic offer
 
     @NonNull
     @ManyToOne
