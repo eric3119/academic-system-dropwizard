@@ -44,7 +44,7 @@ public class SubjectEnrollmentTest {
         FieldUtils.writeField(department, "id", 5L, true);
         when(dao.get(Department.class, department.getId())).thenReturn(department);
 
-        student = new Student("eric", "c789123", department, secretary, 0);
+        student = new Student("eric", "c789123", department, secretary, 153);
         FieldUtils.writeField(student, "id", 12L, true);
         when(dao.get(Student.class, student.getId())).thenReturn(student);
 
@@ -110,6 +110,29 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertNotNull(response.getHeaderString("Content-Type"));
+        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
+    }
+
+    @Test
+    void testStudentNotEnoughCredits(){
+
+        Student s1 = new Student("eric", "c789123", department, secretary, 0);
+        try {
+            FieldUtils.writeField(s1, "id", 15L, true);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        when(dao.get(Student.class, s1.getId())).thenReturn(s1);
+
+        Response response = RULE.target("/enrollsubject")
+                .queryParam("id_student", s1.getId())
+                .queryParam("id_subject", subject.getId())
+                .request()
+                .get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
         assertNotNull(response.getHeaderString("Content-Type"));
         assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
     }

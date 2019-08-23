@@ -48,6 +48,9 @@ public class SubjectEnrollmentResource {
                     throw new WebApplicationException("Subject not found", Response.Status.NOT_FOUND);
                 }
 
+                if (subject.getMin_credits() > student.getCredits())
+                    throw new WebApplicationException("No enough credits", Response.Status.FORBIDDEN);
+
                 SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
                 return Response.ok(dao.persist(SubjectEnrollment.class, subjectEnrollment)).build();
             }
