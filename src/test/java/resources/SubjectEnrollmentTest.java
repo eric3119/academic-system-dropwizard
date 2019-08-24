@@ -16,6 +16,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,9 +37,11 @@ public class SubjectEnrollmentTest {
     private Student student;
     private Secretary secretary;
     private Department department;
-    private Subject subject;
+    private Subject subjectToEnroll;
+    private Subject subjectRequired;
     private SubjectEnrollment subjectEnrollment;
     private List<Student> studentList;
+    private List<Subject> subjectList;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -56,12 +59,19 @@ public class SubjectEnrollmentTest {
         studentList = Collections.singletonList(student);
         when(dao.findAll(Student.class)).thenReturn(studentList);
 
-        subject = new Subject("subjTest","c159753", 123, 153, new ArrayList<>(), department, secretary);
-        FieldUtils.writeField(subject, "id", 55L, true);
-        when(dao.get(Subject.class, subject.getId())).thenReturn(subject);
+        subjectRequired = new Subject("subjRequired","c159553", 123, student.getCredits(), new ArrayList<>(), department, secretary);
+        FieldUtils.writeField(subjectRequired, "id", 54L, true);
+        when(dao.get(Subject.class, subjectRequired.getId())).thenReturn(subjectRequired);
 
-        subjectEnrollment = new SubjectEnrollment(subject, student);
-        when(dao.persist(SubjectEnrollment.class, subjectEnrollment)).thenReturn(subjectEnrollment);
+        subjectToEnroll = new Subject("subjTest","c159753", 123, student.getCredits(), Collections.singletonList(subjectRequired), department, secretary);
+        FieldUtils.writeField(subjectToEnroll, "id", 55L, true);
+        when(dao.get(Subject.class, subjectToEnroll.getId())).thenReturn(subjectToEnroll);
+
+        subjectList = Arrays.asList(subjectRequired, subjectToEnroll);
+        when(dao.findAll(Subject.class)).thenReturn(subjectList);
+
+        subjectEnrollment = new SubjectEnrollment(subjectRequired, student);
+        when(dao.findAll(SubjectEnrollment.class)).thenReturn(Collections.singletonList(subjectEnrollment));
     }
     @AfterEach
     public void tearDown(){
@@ -84,26 +94,25 @@ public class SubjectEnrollmentTest {
 
     @Test
     public void testListSubjects(){
-        final List<Subject> subjectList = Collections.singletonList(subject);
-        when(dao.findAll(Subject.class)).thenReturn(subjectList);
+
 
         final List<Subject> response = RULE.target("/enrollsubject")
                 .queryParam("id_student", student.getId())
                 .request().get(new GenericType<List<Subject>>() {
                 });
         assertNotNull(response);
-        assertEquals(1, response.size());
+        assertEquals(subjectList.size(), response.size());
         assertTrue(response.containsAll(subjectList));
     }
 
     @Test
     public void testEnrollStudent(){
-        final SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
+        final SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subjectToEnroll, student);
         when(dao.persist(SubjectEnrollment.class, subjectEnrollment)).thenReturn(subjectEnrollment);
 
         final SubjectEnrollment response = RULE.target("/enrollsubject")
                 .queryParam("id_student", student.getId())
-                .queryParam("id_subject", subject.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
                 .request().get(SubjectEnrollment.class);
 
         assertNotNull(response);
@@ -126,9 +135,13 @@ public class SubjectEnrollmentTest {
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
+        SubjectEnrollment newEnrollment = new SubjectEnrollment(subjectToEnroll, student);
+        when(dao.persist(SubjectEnrollment.class, newEnrollment))
+        .thenReturn(newEnrollment);
+
         response = RULE.target("/enrollsubject")
                 .queryParam("id_student", student.getId())
-                .queryParam("id_subject", subject.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
                 .request()
                 .get();
 
@@ -172,7 +185,28 @@ public class SubjectEnrollmentTest {
 
         Response response = RULE.target("/enrollsubject")
                 .queryParam("id_student", s1.getId())
-                .queryParam("id_subject", subject.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
+                .request()
+                .get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    void testStudentSubjectsNotSatisfied(){
+
+        Student s1 = new Student("studentNoSubjects", "c789123", department, secretary, subjectToEnroll.getMin_credits());
+        try {
+            FieldUtils.writeField(s1, "id", 15L, true);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        when(dao.get(Student.class, s1.getId())).thenReturn(s1);
+
+        Response response = RULE.target("/enrollsubject")
+                .queryParam("id_student", s1.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
                 .request()
                 .get();
 

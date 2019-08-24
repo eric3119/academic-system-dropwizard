@@ -11,7 +11,9 @@ import lombok.AllArgsConstructor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("enrollsubject")
 @AllArgsConstructor
@@ -48,11 +50,35 @@ public class SubjectEnrollmentResource {
                     throw new WebApplicationException("Subject not found", Response.Status.NOT_FOUND);
                 }
 
+                //////      TEST REQUIREMENTS      /////////////
+
                 if (subject.getMin_credits() > student.getCredits())
                     throw new WebApplicationException("No enough credits", Response.Status.FORBIDDEN);
 
-                SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
-                return Response.ok(dao.persist(SubjectEnrollment.class, subjectEnrollment)).build();
+                // find student enrolments
+                List<Subject> studentSubjects = new ArrayList<>();
+                
+                List<SubjectEnrollment> studentEnrollments = dao.findAll(SubjectEnrollment.class)
+                        .stream()
+                        .filter(subject1 -> subject1.getStudent().equals(student))
+                        .collect(Collectors.toList());
+
+                studentEnrollments.forEach(subjectEnrollment -> studentSubjects.add(subjectEnrollment.getSubject()));
+                System.out.println(studentSubjects);
+
+                for (Subject s:
+                        subject.getRequirements()) {
+                    if(!studentSubjects.contains(s)){
+                        throw new WebApplicationException("Subject requirements not satisfied", Response.Status.FORBIDDEN);
+                    }
+                }
+
+                SubjectEnrollment saved = dao
+                        .persist(SubjectEnrollment.class, new SubjectEnrollment(subject, student));
+
+                assert(saved != null);
+                System.out.println("saved >>>>> "+saved);
+                return Response.ok(saved).build();
             }
         }
     }
