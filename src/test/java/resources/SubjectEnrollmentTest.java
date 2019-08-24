@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ public class SubjectEnrollmentTest {
     private Secretary secretary;
     private Department department;
     private Subject subject;
+    private SubjectEnrollment subjectEnrollment;
     private List<Student> studentList;
     @BeforeEach
     @SneakyThrows
@@ -59,6 +59,9 @@ public class SubjectEnrollmentTest {
         subject = new Subject("subjTest","c159753", 123, 153, new ArrayList<>(), department, secretary);
         FieldUtils.writeField(subject, "id", 55L, true);
         when(dao.get(Subject.class, subject.getId())).thenReturn(subject);
+
+        subjectEnrollment = new SubjectEnrollment(subject, student);
+        when(dao.persist(SubjectEnrollment.class, subjectEnrollment)).thenReturn(subjectEnrollment);
     }
     @AfterEach
     public void tearDown(){
@@ -67,7 +70,7 @@ public class SubjectEnrollmentTest {
 
 
     @Test
-    public void listStudents(){
+    public void testListStudents(){
         final List<Student> studentList = Collections.singletonList(student);
         when(dao.findAll(Student.class)).thenReturn(studentList);
 
@@ -80,7 +83,7 @@ public class SubjectEnrollmentTest {
     }
 
     @Test
-    public void listSubjects(){
+    public void testListSubjects(){
         final List<Subject> subjectList = Collections.singletonList(subject);
         when(dao.findAll(Subject.class)).thenReturn(subjectList);
 
@@ -94,14 +97,26 @@ public class SubjectEnrollmentTest {
     }
 
     @Test
+    public void testEnrollStudent(){
+        final SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subject, student);
+        when(dao.persist(SubjectEnrollment.class, subjectEnrollment)).thenReturn(subjectEnrollment);
+
+        final SubjectEnrollment response = RULE.target("/enrollsubject")
+                .queryParam("id_student", student.getId())
+                .queryParam("id_subject", subject.getId())
+                .request().get(SubjectEnrollment.class);
+
+        assertNotNull(response);
+        assertEquals(subjectEnrollment, response);
+    }
+
+    @Test
     void testEnrollStudentStatusCodes(){
 
         Response response = RULE.target("/enrollsubject").request().get();
 
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
 
         response = RULE.target("/enrollsubject")
                 .queryParam("id_student", student.getId())
@@ -110,8 +125,6 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
 
         response = RULE.target("/enrollsubject")
                 .queryParam("id_student", student.getId())
@@ -132,8 +145,6 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
     }
 
     @Test
@@ -146,8 +157,6 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
     }
 
     @Test
@@ -169,7 +178,5 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
     }
 }

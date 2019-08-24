@@ -1,6 +1,7 @@
 package br.ufal.ic.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Getter
 @Entity
 @NamedQueries({
@@ -17,8 +19,6 @@ import java.util.Objects;
     )
 })
 public class Student {
-
-    public Student(){}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

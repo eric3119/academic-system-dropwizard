@@ -40,7 +40,7 @@ public class SubjectEnrollmentResource {
 
                 List<Subject> subjectList = dao.findAll(Subject.class);
 
-                return Response.ok(subjectList.stream().filter(s -> (s.getDepartment() == department))).build();
+                return Response.ok(subjectList.stream().filter(s -> (s.getDepartment().equals(department)))).build();
             }else{// enroll student
                 Subject subject = dao.get(Subject.class, subjectId);
 
