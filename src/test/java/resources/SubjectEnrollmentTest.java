@@ -12,8 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -33,6 +38,7 @@ public class SubjectEnrollmentTest {
     private Secretary secretary;
     private Department department;
     private Subject subject;
+    private List<Student> studentList;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -47,8 +53,10 @@ public class SubjectEnrollmentTest {
         student = new Student("eric", "c789123", department, secretary, 153);
         FieldUtils.writeField(student, "id", 12L, true);
         when(dao.get(Student.class, student.getId())).thenReturn(student);
+        studentList = Collections.singletonList(student);
+        when(dao.findAll(Student.class)).thenReturn(studentList);
 
-        subject = new Subject("subjTest","c159753", 123, 153, department, secretary);
+        subject = new Subject("subjTest","c159753", 123, 153, new ArrayList<>(), department, secretary);
         FieldUtils.writeField(subject, "id", 55L, true);
         when(dao.get(Subject.class, subject.getId())).thenReturn(subject);
     }
@@ -57,8 +65,36 @@ public class SubjectEnrollmentTest {
         reset(dao);
     }
 
+
     @Test
-    void testEnrollStudent(){
+    public void listStudents(){
+        final List<Student> studentList = Collections.singletonList(student);
+        when(dao.findAll(Student.class)).thenReturn(studentList);
+
+        final List<Student> response = RULE.target("/enrollsubject")
+                .request().get(new GenericType<List<Student>>() {
+                });
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertTrue(response.containsAll(studentList));
+    }
+
+    @Test
+    public void listSubjects(){
+        final List<Subject> subjectList = Collections.singletonList(subject);
+        when(dao.findAll(Subject.class)).thenReturn(subjectList);
+
+        final List<Subject> response = RULE.target("/enrollsubject")
+                .queryParam("id_student", student.getId())
+                .request().get(new GenericType<List<Subject>>() {
+                });
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertTrue(response.containsAll(subjectList));
+    }
+
+    @Test
+    void testEnrollStudentStatusCodes(){
 
         Response response = RULE.target("/enrollsubject").request().get();
 

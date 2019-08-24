@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Entity
@@ -24,4 +25,19 @@ public class Secretary {
 
     @NonNull
     private SecretaryType secretaryType;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Secretary)) {
+            return false;
+        }
+
+        final Secretary that = (Secretary) o;
+
+        return Objects.equals(this.id, that.id) &&
+                Objects.equals(this.secretaryType, that.secretaryType);
+    }
 }
