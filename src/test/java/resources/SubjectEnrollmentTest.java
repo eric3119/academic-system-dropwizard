@@ -42,6 +42,7 @@ public class SubjectEnrollmentTest {
     private SubjectEnrollment subjectEnrollment;
     private List<Student> studentList;
     private List<Subject> subjectList;
+    private List<SubjectEnrollment> subjectEnrollmentList;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -71,7 +72,8 @@ public class SubjectEnrollmentTest {
         when(dao.findAll(Subject.class)).thenReturn(subjectList);
 
         subjectEnrollment = new SubjectEnrollment(subjectRequired, student);
-        when(dao.findAll(SubjectEnrollment.class)).thenReturn(Collections.singletonList(subjectEnrollment));
+        subjectEnrollmentList = Collections.singletonList(subjectEnrollment);
+        when(dao.findAll(SubjectEnrollment.class)).thenReturn(subjectEnrollmentList);
     }
     @AfterEach
     public void tearDown(){
@@ -203,6 +205,31 @@ public class SubjectEnrollmentTest {
             e.printStackTrace();
         }
         when(dao.get(Student.class, s1.getId())).thenReturn(s1);
+
+        Response response = RULE.target("/enrollsubject")
+                .queryParam("id_student", s1.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
+                .request()
+                .get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    void testStudentAlreadyEnrolled(){
+
+        Student s1 = new Student("studentNoSubjects", "c789123", department, secretary, subjectToEnroll.getMin_credits());
+        try {
+            FieldUtils.writeField(s1, "id", 15L, true);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        when(dao.get(Student.class, s1.getId())).thenReturn(s1);
+        SubjectEnrollment subjectEnrollmentL = new SubjectEnrollment(subjectToEnroll, s1);
+        when(dao.get(SubjectEnrollment.class, subjectEnrollment.getId())).thenReturn(subjectEnrollment);
+        subjectEnrollmentList = Arrays.asList(subjectEnrollment, subjectEnrollmentL);
+        when(dao.findAll(SubjectEnrollment.class)).thenReturn(subjectEnrollmentList);
 
         Response response = RULE.target("/enrollsubject")
                 .queryParam("id_student", s1.getId())
