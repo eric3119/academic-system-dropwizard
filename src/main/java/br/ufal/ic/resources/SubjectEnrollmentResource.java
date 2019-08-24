@@ -64,7 +64,9 @@ public class SubjectEnrollmentResource {
                             student.getCredits() < 170)
                         throw new WebApplicationException("Required minimum 170 credits", Response.Status.FORBIDDEN);
                 }
-
+                System.out.println(subjectSecretaryType);
+                System.out.println(studentSecretaryType);
+                System.out.println(student.getCredits());
                 // find student enrolments
                 List<Subject> studentSubjects = new ArrayList<>();
                 
