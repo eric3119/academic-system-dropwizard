@@ -1,10 +1,7 @@
 package br.ufal.ic.resources;
 
 import br.ufal.ic.DAO.GenericDAO;
-import br.ufal.ic.model.Department;
-import br.ufal.ic.model.Student;
-import br.ufal.ic.model.Subject;
-import br.ufal.ic.model.SubjectEnrollment;
+import br.ufal.ic.model.*;
 import io.dropwizard.hibernate.UnitOfWork;
 import lombok.AllArgsConstructor;
 
@@ -44,16 +41,29 @@ public class SubjectEnrollmentResource {
 
                 return Response.ok(subjectList.stream().filter(s -> (s.getDepartment().equals(department)))).build();
             }else{// enroll student
-                Subject subject = dao.get(Subject.class, subjectId);
+                Subject subjectToEnroll = dao.get(Subject.class, subjectId);
 
-                if (subject == null){
+                if (subjectToEnroll == null){
                     throw new WebApplicationException("Subject not found", Response.Status.NOT_FOUND);
                 }
 
                 //////      TEST REQUIREMENTS      /////////////
 
-                if (subject.getMin_credits() > student.getCredits())
+                if (subjectToEnroll.getMin_credits() > student.getCredits())
                     throw new WebApplicationException("No enough credits", Response.Status.FORBIDDEN);
+
+                SecretaryType subjectSecretaryType = subjectToEnroll.getSecretary().getSecretaryType()
+                        , studentSecretaryType = student.getSecretary().getSecretaryType();
+
+                if(subjectSecretaryType != studentSecretaryType){
+                    if(subjectSecretaryType == SecretaryType.Graduation &&
+                        studentSecretaryType == SecretaryType.PostGraduation)
+                        throw new WebApplicationException("Postgraduate student cannot enroll graduation subject", Response.Status.FORBIDDEN);
+                    if(subjectSecretaryType == SecretaryType.PostGraduation &&
+                            studentSecretaryType == SecretaryType.Graduation &&
+                            student.getCredits() < 170)
+                        throw new WebApplicationException("Required minimum 170 credits", Response.Status.FORBIDDEN);
+                }
 
                 // find student enrolments
                 List<Subject> studentSubjects = new ArrayList<>();
@@ -63,18 +73,24 @@ public class SubjectEnrollmentResource {
                         .filter(subject1 -> subject1.getStudent().equals(student))
                         .collect(Collectors.toList());
 
-                studentEnrollments.forEach(subjectEnrollment -> studentSubjects.add(subjectEnrollment.getSubject()));
-                System.out.println(studentSubjects);
+                studentEnrollments.forEach(
+                        studentEnrollment -> {
+                            if (studentEnrollment.getSubject().equals(subjectToEnroll))
+                                throw new WebApplicationException("Already enrolled", Response.Status.FORBIDDEN);
+
+                            studentSubjects.add(studentEnrollment.getSubject());
+                        }
+                );
 
                 for (Subject s:
-                        subject.getRequirements()) {
+                        subjectToEnroll.getRequirements()) {
                     if(!studentSubjects.contains(s)){
                         throw new WebApplicationException("Subject requirements not satisfied", Response.Status.FORBIDDEN);
                     }
                 }
 
                 SubjectEnrollment saved = dao
-                        .persist(SubjectEnrollment.class, new SubjectEnrollment(subject, student));
+                        .persist(SubjectEnrollment.class, new SubjectEnrollment(subjectToEnroll, student));
 
                 assert(saved != null);
                 System.out.println("saved >>>>> "+saved);
