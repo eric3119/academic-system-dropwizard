@@ -101,11 +101,9 @@ public class SubjectEnrollmentTest {
     @Test
     public void testListSubjects(){
 
-
         final List<Subject> response = RULE.target("/enrollsubject")
                 .queryParam("id_student", studentPost.getId())
-                .request().get(new GenericType<List<Subject>>() {
-                });
+                .request().get(new GenericType<List<Subject>>() {});
         assertNotNull(response);
         assertEquals(subjectList.size(), response.size());
         assertTrue(response.containsAll(subjectList));
@@ -123,36 +121,6 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(subjectEnrollment, response);
-    }
-
-    @Test
-    void testEnrollStudentStatusCodes(){
-
-        Response response = RULE.target("/enrollsubject").request().get();
-
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .request()
-                .get();
-
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        SubjectEnrollment newEnrollment = new SubjectEnrollment(subjectToEnroll, studentPost);
-        when(dao.persist(SubjectEnrollment.class, newEnrollment))
-        .thenReturn(newEnrollment);
-
-        response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
-                .request()
-                .get();
-
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -285,5 +253,35 @@ public class SubjectEnrollmentTest {
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    void testEnrollStudentOKStatusCodes(){
+
+        Response response = RULE.target("/enrollsubject").request().get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        response = RULE.target("/enrollsubject")
+                .queryParam("id_student", studentPost.getId())
+                .request()
+                .get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        SubjectEnrollment newEnrollment = new SubjectEnrollment(subjectToEnroll, studentPost);
+        when(dao.persist(SubjectEnrollment.class, newEnrollment))
+                .thenReturn(newEnrollment);
+
+        response = RULE.target("/enrollsubject")
+                .queryParam("id_student", studentPost.getId())
+                .queryParam("id_subject", subjectToEnroll.getId())
+                .request()
+                .get();
+
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 }
