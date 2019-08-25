@@ -3,7 +3,6 @@ package br.ufal.ic.resources;
 import br.ufal.ic.DAO.GenericDAO;
 import br.ufal.ic.model.Department;
 import br.ufal.ic.model.Secretary;
-import br.ufal.ic.model.SecretaryType;
 import br.ufal.ic.model.Subject;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -13,6 +12,7 @@ import lombok.AllArgsConstructor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("/subject")
@@ -25,8 +25,19 @@ public class SubjectResource {
     @Path("/{id}")
     @Timed
     @UnitOfWork
-    public Subject findById(@PathParam("id") LongParam id) {
-        return subjectDAO.get(Subject.class, id.get());
+    public Response findById(@PathParam("id") LongParam id) {
+
+        Subject s = subjectDAO.get(Subject.class, id.get());
+
+        List list = new ArrayList();
+
+        list.add(s.getCode());
+        list.add(s.getCredits());
+        list.add(s.getRequirements());
+        list.add(s.getMin_credits());
+        list.add(s.getName());
+
+        return Response.ok(list).build();
     }
 
     @POST
@@ -36,24 +47,38 @@ public class SubjectResource {
                            @FormParam("code") String code,
                            @FormParam("credits") Integer credits,
                            @FormParam("min_credits") Integer min_credits,
-                           @FormParam("requirements") List<String> requirements,
+                           @FormParam("requirements") List<Long> requirements,
                            @FormParam("department") Long department_id,
                            @FormParam("secretary") Long secretary_id
                            ) {
 
-        Department department = subjectDAO.get(Department.class, department_id);
         Secretary secretary = subjectDAO.get(Secretary.class, secretary_id);
+        if (secretary == null)
+            throw new WebApplicationException("Secretary not found", Response.Status.NOT_FOUND);
+
+        Department department = subjectDAO.get(Department.class, department_id);
+        if (department == null)
+            throw new WebApplicationException("Department not found", Response.Status.NOT_FOUND);
+
+        List<Subject> requirementsList = new ArrayList<>();
+
+        for (Long l :
+                requirements) {
+            Subject s = subjectDAO.get(Subject.class, l);
+
+            if(s != null)
+                requirementsList.add(s);
+        }
 
         Subject d = new Subject(
                 name,
                 code,
                 credits,
                 min_credits,
-                null,//requirements, TODO requirements
+                requirementsList,
                 department,
                 secretary
         );
-        subjectDAO.persist(Subject.class, d);
-        return Response.ok(d).build();
+        return Response.ok(subjectDAO.persist(Subject.class, d)).build();
     }
 }

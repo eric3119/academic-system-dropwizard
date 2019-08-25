@@ -24,14 +24,7 @@ public class StudentResource {
     @GET
     @UnitOfWork
     public Response findAll(){
-
-        List<Student> objectList = dao.findAll(Student.class);
-
-        if (objectList == null){
-            throw new WebApplicationException("No records found", Response.Status.NOT_FOUND);
-        }else
-
-        return Response.ok(objectList).build();
+        return Response.ok(dao.findAll(Student.class)).build();
     }
 
     @GET
@@ -84,7 +77,6 @@ public class StudentResource {
         }
 
         Student student = new Student(name, code, d, s, credits);
-        dao.persist(Student.class, student);
-        return Response.ok(student).build();
+        return Response.ok(dao.persist(Student.class, student)).build();
     }
 }

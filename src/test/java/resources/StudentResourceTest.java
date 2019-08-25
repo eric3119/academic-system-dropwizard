@@ -14,13 +14,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -30,6 +33,7 @@ public class StudentResourceTest{
 
     private GenericDAO dao = mock(GenericDAO.class);
     private StudentResource resource = new StudentResource(dao);
+    private ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
 
     public ResourceExtension RULE = ResourceExtension.builder()
             .addResource(resource)
@@ -54,6 +58,7 @@ public class StudentResourceTest{
         expected = new Student("eric", "c789123", department, secretary, 0);
         FieldUtils.writeField(expected, "id", 12L, true);
         when(dao.get(Student.class, expected.getId())).thenReturn(expected);
+        when(dao.persist(Student.class, expected)).thenReturn(expected);
     }
     @AfterEach
     public void tearDown(){
@@ -78,42 +83,45 @@ public class StudentResourceTest{
     }
     @Test
     public void testAddStudent(){
+        when(dao.persist(eq(Student.class), any(Student.class))).thenReturn(expected);
         final Form form = new Form()
-            .param("name", "eric123")
-            .param("code", "c456123")
+            .param("name", expected.getName())
+            .param("code", expected.getCode())
             .param("id_department", String.valueOf(department.getId()))
-            .param("id_secretary", String.valueOf(secretary.getId()));
+            .param("id_secretary", String.valueOf(secretary.getId()))
+            .param("credits", String.valueOf(expected.getCredits()));
         Response response = RULE.client().target("/student/create").request().post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
+        verify(dao).persist(eq(Student.class), studentCaptor.capture());//TODO student test
     }
     @Test
     public void testFindAll(){
-        when(dao.findAll(Student.class)).thenReturn(
-                Arrays.asList(
-                        new Student("eric123", "c123465", new Department(), new Secretary(SecretaryType.PostGraduation), 0),
-                        new Student("eric456", "c465789", new Department(), new Secretary(SecretaryType.PostGraduation), 0)
-                )
+
+        List<Student> findAllStudents = Arrays.asList(
+                new Student("eric123", "c123465", new Department(), new Secretary(SecretaryType.PostGraduation), 0),
+                new Student("eric456", "c465789", new Department(), new Secretary(SecretaryType.PostGraduation), 0)
         );
 
-        Response response = RULE.client().target("/student").request().get();
+        when(dao.findAll(Student.class)).thenReturn(findAllStudents);
+
+        List<Student> response = RULE.client().target("/student")
+                .request().get(new GenericType<List<Student>>() {});
 
         assertNotNull(response);
+        assertEquals(findAllStudents.size(), response.size());
+        assertTrue(response.containsAll(findAllStudents));
     }
     @Test
     public void testFindAllEmpty(){
-        when(dao.findAll(Student.class)).thenReturn(null);
+        when(dao.findAll(Student.class)).thenReturn(Collections.emptyList());
 
-        Response response = RULE.client().target("/student").request().get();
-
-        assertNotNull(response);
-
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNotNull(response.getHeaderString("Content-Type"));
-        assertEquals(response.getHeaderString("Content-Type"), MediaType.APPLICATION_JSON);
+        List<Student> studentList = RULE.client().target("/student").request().get(
+                new GenericType<List<Student>>(){}
+        );
+        assertNotNull(studentList);
+        assertEquals(0, studentList.size());
 
     }
     @Test
