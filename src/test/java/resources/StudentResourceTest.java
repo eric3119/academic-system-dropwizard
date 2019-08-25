@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -75,9 +76,11 @@ public class StudentResourceTest{
     }
     @Test
     public void testStudentNotFound(){
-        when(dao.get(Student.class,10L)).thenReturn(null);
+        Random random = new Random();
+        Long id = random.nextLong();
+        when(dao.get(Student.class,id)).thenReturn(null);
 
-        Response response = RULE.client().target("/student/10").request().get();
+        Response response = RULE.client().target("/student/"+id).request().get();
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }

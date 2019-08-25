@@ -1,6 +1,7 @@
 package br.ufal.ic.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @NamedQueries({
@@ -18,7 +20,6 @@ import java.util.Objects;
 })
 public class Secretary {
 
-    public Secretary(){}
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

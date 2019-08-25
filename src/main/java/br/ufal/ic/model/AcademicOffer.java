@@ -1,6 +1,7 @@
 package br.ufal.ic.model;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
@@ -19,9 +20,12 @@ public class AcademicOffer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NonNull
     private String semester;
+    @NonNull
     @OneToOne
     private Professor professor;
+    @NonNull
     @OneToOne
     private Subject subject;
 

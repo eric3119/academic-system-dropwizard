@@ -15,10 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -136,9 +133,11 @@ public class SubjectEnrollmentTest {
 
     @Test
     void testSubjectNotFound(){
+        Random random = new Random();
+        Long id = random.nextLong();
         Response response = RULE.target("/enrollsubject")
                 .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", -1)
+                .queryParam("id_subject", id)
                 .request()
                 .get();
 

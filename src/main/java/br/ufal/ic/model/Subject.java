@@ -26,6 +26,7 @@ public class Subject {
     @NonNull private String code;
     @NonNull private Integer credits;
     @NonNull private Integer min_credits;
+    @OneToMany
     private List<Subject> requirements;
     @NonNull
     @ManyToOne

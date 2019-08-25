@@ -20,5 +20,5 @@ database:
 
   # the JDBC URL
   url: jdbc:h2:./academicdb
-#  properties:
-#    hibernate.hbm2ddl.auto: create
+  properties:
+    hibernate.hbm2ddl.auto: create
