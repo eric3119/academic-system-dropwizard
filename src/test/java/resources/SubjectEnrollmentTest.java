@@ -11,8 +11,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
-import javax.ws.rs.core.GenericType;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 
 import java.util.*;
@@ -24,8 +26,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class SubjectEnrollmentTest {
 
+    private static final String SEMESTER = "2019.1";
     private GenericDAO dao = mock(GenericDAO.class);
     private SubjectEnrollmentResource resource = new SubjectEnrollmentResource(dao);
+    private ArgumentCaptor<SubjectEnrollment> argumentCaptor = ArgumentCaptor.forClass(SubjectEnrollment.class);
 
     public ResourceExtension RULE = ResourceExtension.builder()
             .addResource(resource)
@@ -41,6 +45,9 @@ public class SubjectEnrollmentTest {
     private List<Student> studentList;
     private List<Subject> subjectList;
     private List<SubjectEnrollment> subjectEnrollmentList;
+    private AcademicOffer requiredOffer;
+    private AcademicOffer toEnrollOffer;
+    private Professor professor;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -72,7 +79,21 @@ public class SubjectEnrollmentTest {
         subjectList = Arrays.asList(subjectRequired, subjectToEnroll);
         when(dao.findAll(Subject.class)).thenReturn(subjectList);
 
-        subjectEnrollment = new SubjectEnrollment(subjectRequired, studentPost);
+        professor = new Professor("proftest", "c123456", department);
+        FieldUtils.writeField(professor, "id", 1L, true);
+        when(dao.get(Professor.class, professor.getId())).thenReturn(professor);
+
+        requiredOffer = new AcademicOffer(SEMESTER, professor, subjectRequired);
+        FieldUtils.writeField(requiredOffer, "id", 1L, true);
+        when(dao.get(AcademicOffer.class, requiredOffer.getId())).thenReturn(requiredOffer);
+
+        toEnrollOffer = new AcademicOffer(SEMESTER, professor, subjectToEnroll);
+        FieldUtils.writeField(toEnrollOffer, "id", 2L, true);
+        when(dao.get(AcademicOffer.class, toEnrollOffer.getId())).thenReturn(toEnrollOffer);
+
+        when(dao.findAll(AcademicOffer.class)).thenReturn(Arrays.asList(requiredOffer, toEnrollOffer));
+
+        subjectEnrollment = new SubjectEnrollment(studentPost, requiredOffer);
         subjectEnrollmentList = Collections.singletonList(subjectEnrollment);
         when(dao.findAll(SubjectEnrollment.class)).thenReturn(subjectEnrollmentList);
     }
@@ -81,51 +102,35 @@ public class SubjectEnrollmentTest {
         reset(dao);
     }
 
-
-    @Test
-    public void testListStudents(){
-        final List<Student> studentList = Collections.singletonList(studentPost);
-        when(dao.findAll(Student.class)).thenReturn(studentList);
-
-        final List<Student> response = RULE.target("/enrollsubject")
-                .request().get(new GenericType<List<Student>>() {
-                });
-        assertNotNull(response);
-        assertEquals(1, response.size());
-        assertTrue(response.containsAll(studentList));
-    }
-
-    @Test
-    public void testListSubjects(){
-
-        final List<Subject> response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .request().get(new GenericType<List<Subject>>() {});
-        assertNotNull(response);
-        assertEquals(subjectList.size(), response.size());
-        assertTrue(response.containsAll(subjectList));
-    }
-
     @Test
     public void testEnrollStudent(){
-        final SubjectEnrollment subjectEnrollment = new SubjectEnrollment(subjectToEnroll, studentPost);
+        final SubjectEnrollment subjectEnrollment = new SubjectEnrollment(studentPost, toEnrollOffer);
         when(dao.persist(SubjectEnrollment.class, subjectEnrollment)).thenReturn(subjectEnrollment);
 
-        final SubjectEnrollment response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
-                .request().get(SubjectEnrollment.class);
+        Form form = new Form()
+                .param("id_student", studentPost.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        final Response response = RULE.target("/enrollstudent/"+SEMESTER)
+                .request().post(Entity.form(form));
 
         assertNotNull(response);
-        assertEquals(subjectEnrollment, response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        verify(dao).persist(eq(SubjectEnrollment.class), argumentCaptor.capture());
     }
 
     @Test
     void testStudentNotFound(){
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", -1)
+        Long id = new Random().nextLong();
+        Form form = new Form()
+                .param("id_student", id.toString())
+                .param("id_subject", id.toString());
+        when(dao.get(Student.class, id)).thenReturn(null);
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -135,11 +140,14 @@ public class SubjectEnrollmentTest {
     void testSubjectNotFound(){
         Random random = new Random();
         Long id = random.nextLong();
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", id)
+
+        Form form = new Form()
+                .param("id_student", studentPost.getId().toString())
+                .param("id_subject", id.toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -156,11 +164,12 @@ public class SubjectEnrollmentTest {
         }
         when(dao.get(Student.class, s1.getId())).thenReturn(s1);
 
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", s1.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        Form form = new Form()
+                .param("id_student", s1.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
@@ -177,11 +186,13 @@ public class SubjectEnrollmentTest {
         }
         when(dao.get(Student.class, s1.getId())).thenReturn(s1);
 
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", s1.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        Form form = new Form()
+                .param("id_student", s1.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
@@ -196,16 +207,18 @@ public class SubjectEnrollmentTest {
             e.printStackTrace();
         }
         when(dao.get(Student.class, s1.getId())).thenReturn(s1);
-        SubjectEnrollment subjectEnrollment2 = new SubjectEnrollment(subjectToEnroll, s1);
+        SubjectEnrollment subjectEnrollment2 = new SubjectEnrollment(s1, toEnrollOffer);
         when(dao.get(SubjectEnrollment.class, subjectEnrollment.getId())).thenReturn(subjectEnrollment);
         subjectEnrollmentList = Arrays.asList(subjectEnrollment, subjectEnrollment2);
         when(dao.findAll(SubjectEnrollment.class)).thenReturn(subjectEnrollmentList);
 
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", s1.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        Form form = new Form()
+                .param("id_student", s1.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
@@ -214,23 +227,57 @@ public class SubjectEnrollmentTest {
     @Test
     void testStudentPostGradException(){
 
-        subjectToEnroll = new Subject("subjTest","c159753", 123, studentPost.getCredits(), Collections.singletonList(subjectRequired), department, secretaryGrad);
+        subjectToEnroll = new Subject("subjPostGradTest","c159753", 123, studentPost.getCredits(), Collections.singletonList(subjectRequired), department, secretaryGrad);
         try {
             FieldUtils.writeField(subjectToEnroll, "id", 56L, true);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         when(dao.get(Subject.class, subjectToEnroll.getId())).thenReturn(subjectToEnroll);
+        when(dao.findAll(Subject.class)).thenReturn(Arrays.asList(subjectRequired, subjectToEnroll));
 
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        AcademicOffer academicOffer = new AcademicOffer(SEMESTER, professor, subjectToEnroll);
+        when(dao.findAll(AcademicOffer.class)).thenReturn(Arrays.asList(academicOffer, requiredOffer));
+
+        Form form = new Form()
+                .param("id_student", studentPost.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
     }
+
+    @Test
+    void testSubjectNotOffer(){
+
+        subjectToEnroll = new Subject("subjNotOffer","c159753", 123, studentPost.getCredits(), Collections.singletonList(subjectRequired), department, secretaryGrad);
+        try {
+            FieldUtils.writeField(subjectToEnroll, "id", 56L, true);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        when(dao.get(Subject.class, subjectToEnroll.getId())).thenReturn(subjectToEnroll);
+        when(dao.findAll(Subject.class)).thenReturn(Arrays.asList(subjectRequired, subjectToEnroll));
+
+        AcademicOffer academicOffer = new AcademicOffer("2018.2", professor, subjectToEnroll);
+        when(dao.findAll(AcademicOffer.class)).thenReturn(Arrays.asList(academicOffer, requiredOffer));
+
+        Form form = new Form()
+                .param("id_student", studentPost.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
+                .request()
+                .post(Entity.form(form));
+
+        assertNotNull(response);
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+    }
+
     @Test
     void testStudentGradMinCreditsException(){
 
@@ -244,43 +291,41 @@ public class SubjectEnrollmentTest {
         studentList = Arrays.asList(studentPost, studentGrad);
         when(dao.findAll(Student.class)).thenReturn(studentList);
 
-        Response response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentGrad.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        Form form = new Form()
+                .param("id_student", studentGrad.getId().toString())
+                .param("id_subject", subjectToEnroll.getId().toString());
+
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
     }
 
     @Test
-    void testEnrollStudentOKStatusCodes(){
+    public void testEmptyForm(){
+        Form form = new Form()
+                .param("id_student", null)
+                .param("id_subject", null);
 
-        Response response = RULE.target("/enrollsubject").request().get();
-
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
+        Response response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
 
-        SubjectEnrollment newEnrollment = new SubjectEnrollment(subjectToEnroll, studentPost);
-        when(dao.persist(SubjectEnrollment.class, newEnrollment))
-                .thenReturn(newEnrollment);
+        form = new Form()
+                .param("id_student", "0")
+                .param("id_subject", null);
 
-        response = RULE.target("/enrollsubject")
-                .queryParam("id_student", studentPost.getId())
-                .queryParam("id_subject", subjectToEnroll.getId())
+        response = RULE.target("/enrollstudent/"+SEMESTER)
                 .request()
-                .get();
+                .post(Entity.form(form));
 
         assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+
     }
 }

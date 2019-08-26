@@ -1,10 +1,7 @@
 package resources;
 
 import br.ufal.ic.DAO.GenericDAO;
-import br.ufal.ic.model.Department;
-import br.ufal.ic.model.Secretary;
-import br.ufal.ic.model.SecretaryType;
-import br.ufal.ic.model.Student;
+import br.ufal.ic.model.*;
 import br.ufal.ic.resources.StudentResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
@@ -41,9 +38,11 @@ public class StudentResourceTest{
             .build();
 
 
-    private Student expected;
+    private Student student;
     private Secretary secretary;
     private Department department;
+    private AcademicOffer academicOffer;
+    private SubjectEnrollment subjectEnrollment;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -56,23 +55,29 @@ public class StudentResourceTest{
         FieldUtils.writeField(department, "id", 5L, true);
         when(dao.get(Department.class, department.getId())).thenReturn(department);
 
-        expected = new Student("eric", "c789123", department, secretary, 0);
-        FieldUtils.writeField(expected, "id", 12L, true);
-        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
-        when(dao.persist(Student.class, expected)).thenReturn(expected);
+        student = new Student("eric", "c789123", department, secretary, 0);
+        FieldUtils.writeField(student, "id", 12L, true);
+        when(dao.get(Student.class, student.getId())).thenReturn(student);
+        when(dao.persist(Student.class, student)).thenReturn(student);
     }
     @AfterEach
     public void tearDown(){
         reset(dao);
     }
+
+    @Test
+    public void testEnrollmentProof(){
+
+    }
+
     @Test
     public void testGet(){
 
-        Student saved = RULE.target("/student/" + expected.getId()).request().get(Student.class);
+        Student saved = RULE.target("/student/" + student.getId()).request().get(Student.class);
 
         assertNotNull(saved);
-        assertEquals(expected.getName(), saved.getName());
-        assertEquals(expected.getId(), saved.getId());
+        assertEquals(student.getName(), saved.getName());
+        assertEquals(student.getId(), saved.getId());
     }
     @Test
     public void testStudentNotFound(){
@@ -86,18 +91,18 @@ public class StudentResourceTest{
     }
     @Test
     public void testAddStudent(){
-        when(dao.persist(eq(Student.class), any(Student.class))).thenReturn(expected);
+        when(dao.persist(eq(Student.class), any(Student.class))).thenReturn(student);
         final Form form = new Form()
-            .param("name", expected.getName())
-            .param("code", expected.getCode())
+            .param("name", student.getName())
+            .param("code", student.getCode())
             .param("id_department", String.valueOf(department.getId()))
             .param("id_secretary", String.valueOf(secretary.getId()))
-            .param("credits", String.valueOf(expected.getCredits()));
+            .param("credits", String.valueOf(student.getCredits()));
         Response response = RULE.client().target("/student/create").request().post(Entity.form(form));
 
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        verify(dao).persist(eq(Student.class), studentCaptor.capture());//TODO student test
+        verify(dao).persist(eq(Student.class), studentCaptor.capture());
     }
     @Test
     public void testFindAll(){
@@ -116,6 +121,14 @@ public class StudentResourceTest{
         assertEquals(findAllStudents.size(), response.size());
         assertTrue(response.containsAll(findAllStudents));
     }
+//    @Test
+//    public void testEmptyEnrollmentProof(){
+//        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
+//
+//        Response response = RULE.client().target("/student/"+expected.getId()).request().get();
+//        assertNotNull(response);
+//        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+//    }
     @Test
     public void testFindAllEmpty(){
         when(dao.findAll(Student.class)).thenReturn(Collections.emptyList());

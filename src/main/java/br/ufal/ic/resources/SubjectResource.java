@@ -26,18 +26,7 @@ public class SubjectResource {
     @Timed
     @UnitOfWork
     public Response findById(@PathParam("id") LongParam id) {
-
-        Subject s = subjectDAO.get(Subject.class, id.get());
-
-        List list = new ArrayList();
-
-        list.add(s.getCode());
-        list.add(s.getCredits());
-        list.add(s.getRequirements());
-        list.add(s.getMin_credits());
-        list.add(s.getName());
-
-        return Response.ok(list).build();
+        return Response.ok(subjectDAO.get(Subject.class, id.get())).build();
     }
 
     @POST

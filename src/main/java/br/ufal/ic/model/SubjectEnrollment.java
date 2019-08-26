@@ -25,10 +25,10 @@ public class SubjectEnrollment {
 
     @NonNull
     @ManyToOne
-    private Subject subject;
-    @NonNull
-    @ManyToOne
     private Student student;
+    @OneToOne
+    @NonNull
+    private AcademicOffer academicOffer;
 
     @Override
     public boolean equals(Object o) {
@@ -42,7 +42,7 @@ public class SubjectEnrollment {
         final SubjectEnrollment that = (SubjectEnrollment) o;
 
         return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.subject, that.subject) &&
+                Objects.equals(this.academicOffer, that.academicOffer) &&
                 Objects.equals(this.student, that.student);
     }
 }

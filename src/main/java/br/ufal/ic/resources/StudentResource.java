@@ -1,9 +1,7 @@
 package br.ufal.ic.resources;
 
 import br.ufal.ic.DAO.GenericDAO;
-import br.ufal.ic.model.Department;
-import br.ufal.ic.model.Secretary;
-import br.ufal.ic.model.Student;
+import br.ufal.ic.model.*;
 import com.codahale.metrics.annotation.Timed;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
@@ -12,7 +10,9 @@ import lombok.AllArgsConstructor;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/student")
 @AllArgsConstructor
@@ -25,6 +25,45 @@ public class StudentResource {
     @UnitOfWork
     public Response findAll(){
         return Response.ok(dao.findAll(Student.class)).build();
+    }
+
+    @GET
+    @Path("/enrollmentproof/{id}/{semester}")
+    @Timed
+    @UnitOfWork
+    public Response enrollmentProof(@PathParam("id") LongParam id, @PathParam("semester") String semester) {
+
+        Student student =  dao.get(Student.class, id.get());
+
+        if (student == null)
+            throw new WebApplicationException("Student not found", Response.Status.NOT_FOUND);
+
+        List<AcademicOffer> academicOfferList = dao.findAll(AcademicOffer.class);
+
+        if (academicOfferList == null)
+            throw new WebApplicationException("Academic offer not found", Response.Status.NOT_FOUND);
+
+        ///////// Student enrollments /////////////
+        List<SubjectEnrollment> studentEnrollments = dao.findAll(SubjectEnrollment.class);
+
+        if (studentEnrollments == null)
+            throw new WebApplicationException("Not found enrollments", Response.Status.NOT_FOUND);
+
+        studentEnrollments = studentEnrollments.stream()
+                .filter(subjectEnrollment -> subjectEnrollment.getStudent().equals(student)).collect(Collectors.toList());
+
+        ///////// End student enrollments /////////////
+
+        List<Subject> subjectList = new ArrayList<>();
+        for (SubjectEnrollment se :
+                studentEnrollments) {
+            if (se.getAcademicOffer().getSemester().equals(semester))
+                subjectList.add(se.getAcademicOffer().getSubject());
+        }
+
+        EnrollmentProof enrollmentProof = new EnrollmentProof(student, subjectList);
+
+        return Response.ok(enrollmentProof).build();
     }
 
     @GET

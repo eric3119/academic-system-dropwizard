@@ -28,8 +28,4 @@ public class AcademicOffer {
     @NonNull
     @OneToOne
     private Subject subject;
-
-    public Long getId() {
-        return id;
-    }
 }
