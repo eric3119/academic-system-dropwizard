@@ -29,6 +29,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class StudentResourceTest{
 
+    private static final String SEMESTER = "2019.1";
     private GenericDAO dao = mock(GenericDAO.class);
     private StudentResource resource = new StudentResource(dao);
     private ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
@@ -37,12 +38,14 @@ public class StudentResourceTest{
             .addResource(resource)
             .build();
 
-
     private Student student;
     private Secretary secretary;
     private Department department;
     private AcademicOffer academicOffer;
     private SubjectEnrollment subjectEnrollment;
+    private Professor professor;
+    private Subject subjectToEnroll;
+    private List<Subject> subjectList;
     @BeforeEach
     @SneakyThrows
     public void setUp() {
@@ -59,6 +62,25 @@ public class StudentResourceTest{
         FieldUtils.writeField(student, "id", 12L, true);
         when(dao.get(Student.class, student.getId())).thenReturn(student);
         when(dao.persist(Student.class, student)).thenReturn(student);
+
+        subjectToEnroll = new Subject("subjTest","c159753", 123, student.getCredits(), Collections.emptyList(), department, secretary);
+        FieldUtils.writeField(subjectToEnroll, "id", 55L, true);
+        when(dao.get(Subject.class, subjectToEnroll.getId())).thenReturn(subjectToEnroll);
+
+        subjectList = Collections.singletonList(subjectToEnroll);
+        when(dao.findAll(Subject.class)).thenReturn(subjectList);
+
+        professor = new Professor("proftest", "c123456", department);
+        FieldUtils.writeField(professor, "id", 1L, true);
+        when(dao.get(Professor.class, professor.getId())).thenReturn(professor);
+
+        academicOffer = new AcademicOffer(SEMESTER, professor, subjectToEnroll);
+        FieldUtils.writeField(academicOffer, "id", 1L, true);
+        when(dao.get(AcademicOffer.class, academicOffer.getId())).thenReturn(academicOffer);
+        when(dao.findAll(AcademicOffer.class)).thenReturn(Collections.singletonList(academicOffer));
+
+        subjectEnrollment = new SubjectEnrollment(student, academicOffer);
+        when(dao.findAll(SubjectEnrollment.class)).thenReturn(Collections.singletonList(subjectEnrollment));
     }
     @AfterEach
     public void tearDown(){
@@ -67,7 +89,14 @@ public class StudentResourceTest{
 
     @Test
     public void testEnrollmentProof(){
+        EnrollmentProof enrollmentProof = new EnrollmentProof(student, subjectList);
 
+        final EnrollmentProof response = RULE.target("/student/enrollmentproof/"+student.getId()+"/"+SEMESTER)
+                .request().get(EnrollmentProof.class);
+
+        assertNotNull(response);
+        assertEquals(enrollmentProof.getStudent(), response.getStudent());
+        assertEquals(enrollmentProof.getSubjects(), response.getSubjects());
     }
 
     @Test
@@ -121,14 +150,7 @@ public class StudentResourceTest{
         assertEquals(findAllStudents.size(), response.size());
         assertTrue(response.containsAll(findAllStudents));
     }
-//    @Test
-//    public void testEmptyEnrollmentProof(){
-//        when(dao.get(Student.class, expected.getId())).thenReturn(expected);
-//
-//        Response response = RULE.client().target("/student/"+expected.getId()).request().get();
-//        assertNotNull(response);
-//        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-//    }
+
     @Test
     public void testFindAllEmpty(){
         when(dao.findAll(Student.class)).thenReturn(Collections.emptyList());
@@ -140,6 +162,32 @@ public class StudentResourceTest{
         assertEquals(0, studentList.size());
 
     }
+
+    @Test
+    public void testEmptyRequest(){
+
+        when(dao.findAll(SubjectEnrollment.class)).thenReturn(null);
+
+        Response response = RULE.target("/student/enrollmentproof/"+student.getId()+"/"+SEMESTER)
+                .request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
+        when(dao.findAll(AcademicOffer.class)).thenReturn(null);
+
+        response = RULE.target("/student/enrollmentproof/"+student.getId()+"/"+SEMESTER)
+                .request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
+        when(dao.get(Student.class, student.getId())).thenReturn(null);
+
+        response = RULE.target("/student/enrollmentproof/"+student.getId()+"/"+SEMESTER)
+                .request().get();
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
     @Test
     void testBadRequest(){
         Form form = new Form();
